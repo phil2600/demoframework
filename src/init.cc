@@ -1,12 +1,5 @@
 #include "sys/lib.hh"
 
-#define WIDTH 1024
-#define HEIGHT 768
-#define BPP 32
-#define FULLSCREEN 0
-//#define MAX_PARTICLE 100000
-#define MAX_PARTICLE 1000
-
 SDL_Surface *fenetre;
 
 float LastFrame;
@@ -30,46 +23,11 @@ char mov = 1;
 
 float key_up_down, key_left_right, keyzoom, lr, ud = 0;
 
-/* typedef struct	timer */
-/* { */
-/*   int		last_time; */
-/*   int		cur_time; */
-/*   int		diff_time; */
-/*   int		accumulator; */
-/* }		s_timer; */
-
 s_timer		*timer;
 
 
-typedef struct particle
-{
-  float posX;
-  float posY;
-  float posZ;
-  float movX;
-  float movY;
-  float movZ;
-  float r;
-  float g;
-  float b;
-  float life;
-}		s_particle;
+ParticleList particles_list (MAX_PARTICLES);
 
-s_particle	*particles;
-
-/* =====================
-** ==== RandomFloat ====
-** =====================
-** Return: a randomized float
-*/
-float	random_float()
-{
-  float		res = 0.f;
-
-  res = (rand() % 1000) / 1000.0f;
-
-  return (res);
-}
 
 /* =================
 ** ==== Reshape ====
@@ -108,14 +66,14 @@ int		init(int		width,
     | SDL_HWACCEL;
 
   if (SDL_Init(SDL_INIT_VIDEO) == -1)
-    printf("ERROR - SDL_Init : %s\n", SDL_GetError());
+    exit (1);
 
-  glCullFace(GL_FRONT); // Affiche que le dessus des surfaces
-  /*   glEnable(GL_DEPTH_TEST); */
-  /*   glEnable(GL_NORMALIZE); */
+  glCullFace(GL_FRONT); // Display the top of the surfaces
+  //   glEnable(GL_DEPTH_TEST);
+  //   glEnable(GL_NORMALIZE);
 
-  /*   SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); */
-  /*   SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 16); */
+  //   SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+  //   SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 16);
 
   atexit(SDL_Quit);
 
@@ -123,13 +81,13 @@ int		init(int		width,
     flags |= SDL_FULLSCREEN;
 
   if (!(fenetre = SDL_SetVideoMode(width, height, bpp, flags)))
-    printf("ERROR - SDL_SetVideoMode : %s\n", SDL_GetError());
+    exit (1);
 
-  /*   glShadeModel(GL_SMOOTH); */
-  /*   glClearColor(0.0,0.0,0.0,0.0); */
-  /*   glClearDepth(1.0); */
-  /*   glDepthFunc(GL_LEQUAL); */
-  /*   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); */
+  //   glShadeModel(GL_SMOOTH);
+  //   glClearColor(0.0,0.0,0.0,0.0);
+  //   glClearDepth(1.0);
+  //   glDepthFunc(GL_LEQUAL);
+  //   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -140,35 +98,6 @@ int		init(int		width,
   return 0;
 }
 
-
-void		create_particle(int x, int y, int z, int id)
-{
-  particles[id].posX = x;
-  particles[id].posZ = z;
-  particles[id].posY = y;
-
-  /*   particles[id].r = 25; */
-  /*   particles[id].g = 25; */
-  /*   particles[id].b = 25; */
-
-  /*   particles[id].r = tabsin [(int) (x + rot_angle) * 10]; */
-  /*   particles[id].g = tabsin [(int) (y + rot_angle) * 10]; */
-  /*   particles[id].b = tabsin [(int) (z + rot_angle) * 10]; */
-
-  particles[id].r = sys_sinf (x + rot_angle);
-  particles[id].g = sys_sinf (y + rot_angle);
-  particles[id].b = sys_sinf (z + rot_angle);
-
-
-  /*   particles[id].movX = random_float() / 100.0f; */
-  /*   particles[id].movY = random_float() / 100.0f; */
-  /*   particles[id].movZ = random_float() / 100.0f + 0.03f; */
-
-
-  particles[id].movX = -sys_cosf (y * rot_mov / 90);
-  particles[id].movY = sys_sinf (-x * rot_mov / 90);
-  particles[id].movZ = -sys_sinf (y * rot_mov / 90);
-}
 
 void update_tempo ()
 {
@@ -239,36 +168,14 @@ void update_events ()
     rot_mov += 0.2;
 }
 
-
-void		init_particle()
-{
-  int x, y, z, id = 0;
-
-  for (x = 0; x < 10; x++)
-    for (y = 0; y < 10; y++)
-      for (z = 0; z < 10; z++)
-      {
-	id++;
-	create_particle(x, y, z, id);
-      }
-}
-
 void		update_particle()
 {
   update_events ();
-  int id = 0;
-
-  for (int x = 0; x < 10; x++)
-    for (int y = 0; y < 10; y++)
-      for (int z = 0; z < 10; z++)
-      {
-	id++;
-	create_particle(x, y, z, id);
-	particles[id].posX += particles[id].movX;
-	particles[id].posY += particles[id].movY;
-	particles[id].posZ -= particles[id].movZ;
-
-      }
+  //   rescaler = 0.5;
+  //   rot1 += 0.5f;
+  //   keyzoom = 30;
+  //   rot_angle = 2;
+  particles_list.update_particles(rot_angle, rot_mov);
 }
 
 
@@ -332,11 +239,7 @@ void		draw_particle(void)
 
   glBegin(GL_POINTS);
 
-  for (int p = 0; p < MAX_PARTICLE; p++)
-  {
-    glColor3f(particles[p].r, particles[p].g, particles[p].b);
-    glVertex3f(particles[p].posX, particles[p].posY, particles[p].posZ);
-  }
+  particles_list.display_particles();
 
   glEnd();
   glPopMatrix();
@@ -356,17 +259,17 @@ void Display()
 }
 
 
-static Uint32 callback(Uint32 interval, void *event)
-{
-  SDL_PollEvent((SDL_Event*)event);
-  //   update_particle();
-  //   Display();
-  //   FPS();
+// static Uint32 callback(Uint32 interval, void *event)
+// {
+//   SDL_PollEvent((SDL_Event*)event);
+//   //   update_particle();
+//   //   Display();
+//   //   FPS();
 
-  //  printf("Timer %d : param = %d\n", interval, (int) param);
+//   //  printf("Timer %d : param = %d\n", interval, (int) param);
 
-  return interval;
-}
+//   return interval;
+// }
 
 /* =============
 ** ==== Fps ====
@@ -407,24 +310,24 @@ int main (int argc,
   SDL_Event	event;
   SDL_TimerID   t1;
 
-  timer_init(1);
+  if (!sys_init(0))
+    exit(1);
+
   //  initcossin();
-  particles = (s_particle*) malloc(sizeof (s_particle) * MAX_PARTICLE);
   timer = (s_timer*) malloc (sizeof (s_timer));
 
   if (init (WIDTH, HEIGHT, BPP, FULLSCREEN) == -1)
     exit(1);
 
   Reshape (WIDTH, HEIGHT);
-  init_particle();
 
   SDL_EnableKeyRepeat(10, 10);
 
-  while (!(quit = catch_events (event, quit)))
+  while (!(quit = catch_events (event, quit)) && !quit)
   {
     disp_routine();
     SDL_PollEvent(&event);
   }
 
-  return (0);
+  return 0;
 }

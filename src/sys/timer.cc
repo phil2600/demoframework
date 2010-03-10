@@ -1,6 +1,6 @@
 #include <unistd.h>
 
-#include "timer.hh"
+#include "includes/timer.hh"
 #include "lib.hh"
 
 static int ticks = 0;
@@ -44,4 +44,6 @@ int timer_init(int resolution)
   atexit(SDL_Quit);
 
   SDL_SetTimer(resolution, ticktock);
+
+  return 1;
 }

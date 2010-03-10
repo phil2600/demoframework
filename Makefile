@@ -15,7 +15,7 @@ $(EXEC): $(OBJ)
 	cat $(SRC) | perl -pe 's/\s//g' | wc -c
 
 %.o : %.cc
-	$(CC) -o $@ -c $< $(CFLAGS) #$(PERSO_FLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS) $(PERSO_FLAGS)
 
 clean:
 	find . -iname "*~"	-delete
@@ -31,4 +31,4 @@ mrproper: clean
 	$(RM) $(EXEC)
 
 dist: mrproper
-	$(COMP) $(TARBALL_NAME) $(SRC) $(TO_COMPRESS)
+	$(COMP) $(TARBALL_NAME) $(SRC) src/sys/**/*.hh $(TO_COMPRESS)

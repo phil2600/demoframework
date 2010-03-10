@@ -9,10 +9,17 @@
 ## Last update Thu Nov 16 17:45:25 2009 Philippe Faure
 ##
 
-cat <<EOF > Makefile.rules
+cat << EOF > Makefile.rules
 
   SRC = src/init.cc \
-src/sys/timer.cc
+src/sys/sys.cc \
+src/sys/timer.cc \
+src/sys/graphic/graphic.cc \
+src/sys/graphic/gl_init.cc \
+src/sys/random/random.cc \
+src/sys/tools/tools.cc \
+src/sys/physics/physics.cc
+
 
 
   CC	= g++
@@ -20,11 +27,15 @@ src/sys/timer.cc
   RM	= rm -f
 
 
-  CFLAGS        = `sdl-config --cflags`
+  CFLAGS        = `sdl-config --cflags` -O3 -fPIC
+  CFLAGS       += -fomit-frame-pointer -fno-rtti
+  CFLAGS       += -fno-math-errno -ffast-math
+  CFLAGS       += -fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
+
   LDLIBS        = `sdl-config --libs`
   FUCKING_FLAGS	= #-Wall -Werror -Wall -W
-  LDFLAGS       = -lm -lGL -Wall -lGLU -ansi -O3
-  PERSO_FLAGS   = -DFAST_MATHS
+  LDFLAGS       = -lm -lGL -Wall -lGLU -ansi
+  PERSO_FLAGS   = #-DFAST_MATHS
 
 
   EXEC         = cube
@@ -34,3 +45,18 @@ src/sys/timer.cc
   TO_COMPRESS  = Makefile configure
 
 EOF
+
+
+#   CFLAGS=-O2 -fPIC -DLITTLEENDIAN -DPC -DMULTIPROCESSOR -DLINUX
+#   CFLAGS+=-fomit-frame-pointer -fno-rtti
+
+#   #Commented due to size constraints
+#   #-finline-functions
+#   #CFLAGS+=-funroll-all-loops
+#   CFLAGS+=-fno-math-errno -ffast-math
+#   CFLAGS+=-fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
+#   SOFLAGS= -shared -rdynamic -pthread
+#   LFLAGS = -r
+#   EFLAGS = -nostartfiles -nodefaultlibs
+#   NID = _linux_pc
+#   SYSLIBS= -L/usr/X11R6/lib/ -lpthread -lX11 -lGL -lXext
