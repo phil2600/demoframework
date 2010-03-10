@@ -18,7 +18,10 @@ src/sys/graphic/graphic.cc \
 src/sys/graphic/gl_init.cc \
 src/sys/random/random.cc \
 src/sys/tools/tools.cc \
-src/sys/physics/physics.cc
+src/sys/physics/physics.cc \
+src/sys/graphic/shapes.cc \
+src/sys/graphic/vector3d.cc \
+src/sys/graphic/fly_cam.cc
 
 
 

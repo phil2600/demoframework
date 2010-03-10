@@ -2,56 +2,24 @@
 
 
 Particle::Particle(int x, int y, int z, int id)
-  :posX_ (x),
-   posY_ (y),
-   posZ_ (z),
-   id_ (id)
 {
+  posX_ = x;
+  posY_ = y;
+  posZ_ = z;
+  id_ = id;
   r_ = sys_sinf (x);
   g_ = sys_sinf (y);
   b_ = sys_sinf (z);
 }
 
 Particle::Particle(int id)
-  :id_ (id)
 {
+  id_ = id;
 }
 
 
 Particle::~Particle()
 {
-}
-
-void
-Particle::colorate(float r, float g, float b)
-{
-  r_ = r;
-  g_ = g;
-  b_ = b;
-}
-
-void
-Particle::position(float x, float y, float z)
-{
-  posX_ = x;
-  posY_ = y;
-  posZ_ = z;
-}
-
-void
-Particle::rotation(float x, float y, float z)
-{
-  movX_ = x;
-  movY_ = y;
-  movZ_ = z;
-}
-
-void
-Particle::move(float x, float y, float z)
-{
-  posX_ += movX_;
-  posY_ += movY_;
-  posZ_ += movZ_;
 }
 
 void
@@ -81,15 +49,15 @@ ParticleList::~ParticleList()
 }
 
 void
-ParticleList::update_particles(float rot_angle, float rot_mov)
+ParticleList::update_particles_cube(float color_rot, float rot_mov)
 {
   int		id = 0;
   Particle	*particle = 0;
-  int x, y, z = 0;
+  int		x, y, z = 0;
 
   std::map<unsigned int, Particle*>::iterator i = particles_map_.begin ();
 
-  for (;i != particles_map_.end (); i++)
+  for (;i != particles_map_.end(); i++)
   {
     id = i->first;
     particle = i->second;
@@ -99,21 +67,19 @@ ParticleList::update_particles(float rot_angle, float rot_mov)
     z = id % 10;
 
     i->second->position(x, y, z);
-    i->second->colorate(sys_sinf (x + rot_angle), \
-			sys_sinf (y + rot_angle), \
-			sys_sinf (z + rot_angle));
+    i->second->colorate(sys_sinf (x + color_rot),	\
+			sys_sinf (y + color_rot),	\
+			sys_sinf (z + color_rot));
 
-    i->second->rotation(-sys_cosf (y * rot_mov / 90), \
-			sys_sinf (-x * rot_mov / 90), \
-			-sys_sinf (y * rot_mov / 90));
-
-    i->second->move(x, y, -z);
+    i->second->move(-sys_cosf (y * rot_mov / 90),	\
+		    sys_sinf (-x * rot_mov / 90),	\
+		    -sys_sinf (y * rot_mov / 90));
   }
 
 }
 
 void
-ParticleList::display_particles()
+ParticleList::display()
 {
   std::map<unsigned int, Particle*>::iterator i = particles_map_.begin ();
 

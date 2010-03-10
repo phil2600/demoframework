@@ -1,14 +1,8 @@
 #include "sys/lib.hh"
 
-SDL_Surface *fenetre;
-
-float LastFrame;
-float last_frame_fps;
-float fps;
-
+/* FIXME */
 float rot1  = 0.0f;
 
-float rot_angle = 0.0f;
 float rot_mov = 0.0f;
 
 float rescaler = 0.0f;
@@ -17,317 +11,246 @@ float resize_x = 1.0f;
 float resize_y = 1.0f;
 float resize_z = 1.0f;
 
-char stop = 0;
-char sens = 0;
-char mov = 1;
-
 float key_up_down, key_left_right, keyzoom, lr, ud = 0;
-
-s_timer		*timer;
-
-
-ParticleList particles_list (MAX_PARTICLES);
+/* FIXME */
 
 
-/* =================
-** ==== Reshape ====
-** =================
-** Rescale the OpenGL window
-*/
-void Reshape(int w, int h)
+FreeFlyCamera * camera;
+
+ParticleList particle_cube (MAX_PARTICLES);
+
+int	process_display();
+
+void	update_events();
+void	event_management(SDL_Event *event, char *quit);
+void	display();
+void	update_shapes();
+void	draw_particles(void);
+
+
+int	main (int argc,char** argv)
 {
-  glViewport (0, 0, w, h);
+  if (! sys_init(0))
+    exit(1);
 
-  glMatrixMode (GL_PROJECTION);
-  glLoadIdentity ();
+  camera = new FreeFlyCamera(Vector3D(0,0,2));
 
-  gluPerspective (45.0, (float) w / h, 0.1, 1000.0);
-
-  glMatrixMode (GL_MODELVIEW);
-  glLoadIdentity ();
-}
-
-/* ==============
-** ==== Init ====
-** ==============
-** Initialize the OpenGL window
-*/
-int		init(int		width,
-		     int		height,
-		     int		bpp,
-		     char		fullscreen)
-{
-  Uint32	flags =
-    SDL_OPENGL
-    | SDL_GL_DOUBLEBUFFER
-    | SDL_HWPALETTE
-    | SDL_RESIZABLE
-    | SDL_HWSURFACE
-    | SDL_HWACCEL;
-
-  if (SDL_Init(SDL_INIT_VIDEO) == -1)
-    exit (1);
-
-  glCullFace(GL_FRONT); // Display the top of the surfaces
-  //   glEnable(GL_DEPTH_TEST);
-  //   glEnable(GL_NORMALIZE);
-
-  //   SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
-  //   SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 16);
-
-  atexit(SDL_Quit);
-
-  if (fullscreen)
-    flags |= SDL_FULLSCREEN;
-
-  if (!(fenetre = SDL_SetVideoMode(width, height, bpp, flags)))
-    exit (1);
-
-  //   glShadeModel(GL_SMOOTH);
-  //   glClearColor(0.0,0.0,0.0,0.0);
-  //   glClearDepth(1.0);
-  //   glDepthFunc(GL_LEQUAL);
-  //   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(70.0, width / height, 1.0, 100.0);
-  glEnable(GL_DEPTH_TEST);
-  glPointSize(2.0);
+  process_display();
 
   return 0;
 }
 
 
-void update_tempo ()
+void		update_shapes()
 {
-  timer->cur_time = SDL_GetTicks();
+  static float color_rot = 0.0f;
+  static float moves = 0.0f;
 
-  timer->diff_time = timer->cur_time - timer->last_time;
-  timer->accumulator += timer->diff_time;
+  /* Update Particle Cube */
+  color_rot += 0.01;
+  moves += 0.2;
 
-  timer->last_time = timer->cur_time;
+  particle_cube.update_particles_cube(color_rot, moves);
 }
 
-void update_events ()
+void		draw_shapes(void)
 {
-  update_tempo ();
-  rot_angle += .008;
+  /* Draw Orthogonal Repere */
+  draw_repere(50);
 
-  if (!stop)
-    if (!sens)
-    {
-      rot1 += 0.5f;
-      if (rescaler < 2)
-	rescaler += .008;
+  //   GLUquadric* params = gluNewQuadric(); //création du quadrique
+  //   gluCylinder(params,0.5,0,1.6,20,1); //cône 1
 
-      if (rescaler > 2 && resize_x < 4)
-      {
-	resize_x += .008;
-	keyzoom -= 0.5;
-      }
-
-      if (rescaler > 2 && resize_y < 4)
-      {
-	resize_y += .008;
-	keyzoom -= 0.5;
-      }
-
-      if (resize_y > 4 && resize_z < 4)
-      {
-	mov = 0;
-
-	resize_z += .008;
-	keyzoom -= 0.3 ;
-      }
-      if (resize_z > 4)
-	sens = 1;
-    }
-    else
-    {
-      rot1 -= 0.5f;
-      if (rot1 == 180)
-	stop = 1;
-    }
-  else
-  {
-    keyzoom += 0.7 ;
-    resize_z += .1;
-    resize_y += .008;
-    resize_x += .008;
-    lr -= 0.1;
-    ud -= 0.07;
-    //        printf ("zoom: %f\n", keyzoom);
-  }
-  if (!mov)
-  {
-    if (rot_mov > 0)
-      rot_mov -= 0.2;
-  }
-  else
-    rot_mov += 0.2;
-}
-
-void		update_particle()
-{
-  update_events ();
-  //   rescaler = 0.5;
-  //   rot1 += 0.5f;
-  //   keyzoom = 30;
-  //   rot_angle = 2;
-  particles_list.update_particles(rot_angle, rot_mov);
-}
-
-
-char catch_events (SDL_Event event, char quit)
-{
-  while (SDL_PollEvent(&event))
-  {
-    switch(event.type)
-    {
-      case SDL_QUIT:
-	quit = 1;
-	break;
-
-      case SDL_VIDEORESIZE:
-	Reshape(event.resize.w,event.resize.h);
-
-      case SDL_KEYDOWN:
-	switch(event.key.keysym.sym)
-	{
-	  case SDLK_LEFT:
-	    key_left_right -= 1;
-	    break;
-	  case SDLK_RIGHT:
-	    key_left_right += 1;
-	    break;
-	  case SDLK_UP:
-	    key_up_down += 1;
-	    break;
-	  case SDLK_DOWN:
-	    key_up_down -= 1;
-	    break;
-
-	  case SDLK_KP_MINUS:
-	    keyzoom -= 1.0;
-	    break;
-	  case SDLK_KP_PLUS:
-	    keyzoom += 1.0;
-	    break;
-	  case SDLK_ESCAPE:
-	    quit = 1;
-	    break;
-	  default:
-	    break;
-	}
-    }
-  }
-  return quit;
-}
-
-
-void		draw_particle(void)
-{
+  /* Draw Particle Cube */
   glPushMatrix();
 
-  glTranslatef(-1.0 + key_left_right + lr, -1.0 + key_up_down + ud, -70.0 + keyzoom);
-
-  glRotatef(rot1, 0, 0, 1);
-  glRotatef(rot1, 0, 1, 0);
-  glRotatef(rot1, 1, 0, 0);
-  glScalef(1.0 * rescaler * resize_x, 1.0 * rescaler * resize_y, 1.0 * rescaler * resize_z);
+  rot1 += 0.5f;
+  particle_cube.rotation(rot1, rot1, rot1);
+  particle_cube.rotation_cst(0, 0, 0);
+  particle_cube.position(1,1,1);
+  particle_cube.update();
 
   glBegin(GL_POINTS);
-
-  particles_list.display_particles();
-
+  particle_cube.display();
   glEnd();
+
   glPopMatrix();
 }
 
-void Display()
+void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  glTranslatef(-1.0, -1.0, -5.0);
 
-  draw_particle ();
+  camera->look();
+
+  //gluLookAt(camX, camY, camZ, cibleX, cibleY, cibleZ, vertX, vertY, vertZ);
+//  gluLookAt(1.5, 1.5, 5 + keyzoom, 1.5, 1.5, 0, 0, 1, 0);
+
+  //  glTranslatef(key_left_right, key_up_down, -70.0 + keyzoom);
+
+  draw_shapes();
 
   glFlush();
   SDL_GL_SwapBuffers();
 }
 
-
-// static Uint32 callback(Uint32 interval, void *event)
-// {
-//   SDL_PollEvent((SDL_Event*)event);
-//   //   update_particle();
-//   //   Display();
-//   //   FPS();
-
-//   //  printf("Timer %d : param = %d\n", interval, (int) param);
-
-//   return interval;
-// }
-
-/* =============
-** ==== Fps ====
-** =============
-** Display the number of frames per seconds
-*/
-void FPS()
+void event_management(SDL_Event *event, char *quit)
 {
-  fps++;
+  while (SDL_PollEvent(event))
+    switch(event->type)
+    {
+      case SDL_QUIT:
+	*quit = 1;
+	break;
 
-  if (last_frame_fps + 1000.0f <= SDL_GetTicks ())
-  {
-    last_frame_fps = SDL_GetTicks ();
-    printf ("fps: %i\n", (int)fps / 1000 * 14);
-    fps = 0;
-  }
+      case SDL_VIDEORESIZE:
+	Reshape(event->resize.w,event->resize.h);
+
+      case SDL_KEYDOWN:
+	switch (event->key.keysym.sym)
+	{
+ 	  case SDLK_ESCAPE:
+ 	    *quit = 1;
+ 	    break;
+	  default :
+	    camera->OnKeyboard(event->key);
+	}
+ 	break;
+      case SDL_KEYUP:
+	camera->OnKeyboard(event->key);
+	break;
+      case SDL_MOUSEMOTION:
+	camera->OnMouseMotion(event->motion);
+	break;
+      case SDL_MOUSEBUTTONUP:
+      case SDL_MOUSEBUTTONDOWN:
+	camera->OnMouseButton(event->button);
+	break;
+    }
 }
 
-void disp_routine()
+int process_display()
 {
-  //  FPS();
-  fps++;
-  if (LastFrame + 10.0f <= SDL_GetTicks ())
+  SDL_Event event;
+  char quit = 0;
+
+  Uint32 last_time = SDL_GetTicks();
+  Uint32 current_time,elapsed_time;
+  Uint32 start_time;
+
+  Reshape(WIDTH, HEIGHT);
+
+  while (!quit)
   {
-    LastFrame = SDL_GetTicks ();
-    update_particle();
-    Display();
-    //    printf ("fps: %i\n", (int)fps / 1000 * 14);
-    printf ("fps: %i\n", (int)fps);
-    fps = 0;
-  }
-}
+    start_time = SDL_GetTicks();
 
-int main (int argc,
-	  char** argv)
-{
-  char		quit = 0;
-  SDL_Event	event;
-  SDL_TimerID   t1;
+    event_management(&event, &quit);
 
-  if (!sys_init(0))
-    exit(1);
+    current_time = SDL_GetTicks();
+    elapsed_time = current_time - last_time;
+    last_time = current_time;
 
-  //  initcossin();
-  timer = (s_timer*) malloc (sizeof (s_timer));
+    camera->animate(elapsed_time);
 
-  if (init (WIDTH, HEIGHT, BPP, FULLSCREEN) == -1)
-    exit(1);
+    //    update_events();
+    update_shapes();
+    display();
 
-  Reshape (WIDTH, HEIGHT);
-
-  SDL_EnableKeyRepeat(10, 10);
-
-  while (!(quit = catch_events (event, quit)) && !quit)
-  {
-    disp_routine();
-    SDL_PollEvent(&event);
+    elapsed_time = SDL_GetTicks() - start_time;
+    if (elapsed_time < 10)
+      SDL_Delay(10 - elapsed_time);
   }
 
   return 0;
 }
+
+
+
+// void update_events ()
+// {
+//   char stop = 0;
+//   char mov  = 1;
+//   char sens = 0;
+
+//   if (!stop)
+//     if (!sens)
+//     {
+//       rot1 += 0.5f;
+//       if (rescaler < 2)
+// 	rescaler += .008;
+
+//       if (rescaler > 2 && resize_x < 4)
+//       {
+// 	resize_x += .008;
+// 	keyzoom -= 0.5;
+//       }
+
+//       if (rescaler > 2 && resize_y < 4)
+//       {
+// 	resize_y += .008;
+// 	keyzoom -= 0.5;
+//       }
+
+//       if (resize_y > 4 && resize_z < 4)
+//       {
+// 	mov = 0;
+
+// 	resize_z += .008;
+// 	keyzoom -= 0.3 ;
+//       }
+//       if (resize_z > 4)
+// 	sens = 1;
+//     }
+//     else
+//     {
+//       rot1 -= 0.5f;
+//       if (rot1 == 180)
+// 	stop = 1;
+//     }
+//   else
+//   {
+//     keyzoom += 0.7 ;
+//     resize_z += .1;
+//     resize_y += .008;
+//     resize_x += .008;
+//     lr -= 0.1;
+//     ud -= 0.07;
+//   }
+
+//   if (!mov)
+//   {
+//     if (rot_mov > 0)
+//       rot_mov -= 0.2;
+//   }
+//   else
+//     rot_mov += 0.2;
+// }
+
+
+	// 	  case SDLK_LEFT:
+	// 	    key_left_right += 1;
+	// 	    break;
+	// 	  case SDLK_RIGHT:
+	// 	    key_left_right -= 1;
+	// 	    break;
+	// 	  case SDLK_UP:
+	// 	    key_up_down -= 1;
+	// 	    break;
+	// 	  case SDLK_DOWN:
+	// 	    key_up_down += 1;
+	// 	    break;
+
+	// 	  case SDLK_KP_MINUS:
+	// 	    keyzoom -= 1.0;
+	// 	    break;
+	// 	  case SDLK_KP_PLUS:
+	// 	    keyzoom += 1.0;
+	// 	    break;
+	// 	  case SDLK_ESCAPE:
+	// 	    *quit = 1;
+	// 	    break;
+	// 	  default:
+	// 	    continue;
+	//    }

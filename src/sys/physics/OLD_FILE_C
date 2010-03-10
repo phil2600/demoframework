@@ -1,0 +1,43 @@
+# create
+// void		create_particle(int x, int y, int z, int id)
+// {
+//   particles[id].posX = x;
+//   particles[id].posZ = z;
+//   particles[id].posY = y;
+
+//   /*   particles[id].r = 25; */
+//   /*   particles[id].g = 25; */
+//   /*   particles[id].b = 25; */
+
+//   /*   particles[id].r = tabsin [(int) (x + rot_angle) * 10]; */
+//   /*   particles[id].g = tabsin [(int) (y + rot_angle) * 10]; */
+//   /*   particles[id].b = tabsin [(int) (z + rot_angle) * 10]; */
+
+//   particles[id].r = sys_sinf (x + rot_angle);
+//   particles[id].g = sys_sinf (y + rot_angle);
+//   particles[id].b = sys_sinf (z + rot_angle);
+
+
+// //   particles[id].movX = random_float() / 100.0f;
+// //   particles[id].movY = random_float() / 100.0f;
+// //   particles[id].movZ = random_float() / 100.0f + 0.03f;
+
+
+//   particles[id].movX = -sys_cosf (y * rot_mov / 90);
+//   particles[id].movY = sys_sinf (-x * rot_mov / 90);
+//   particles[id].movZ = -sys_sinf (y * rot_mov / 90);
+// }
+
+
+# update
+//   for (int x = 0; x < 10; x++)
+//     for (int y = 0; y < 10; y++)
+//       for (int z = 0; z < 10; z++)
+//       {
+// 	id++;
+// 	create_particle(x, y, z, id);
+// 	particles[id].posX += particles[id].movX;
+// 	particles[id].posY += particles[id].movY;
+// 	particles[id].posZ -= particles[id].movZ;
+
+//       }

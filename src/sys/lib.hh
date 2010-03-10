@@ -20,10 +20,6 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
-//#include <math.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-
 int	sys_init(unsigned int	h);
 void	sys_end(void);
 

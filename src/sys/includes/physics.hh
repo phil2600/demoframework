@@ -2,27 +2,22 @@
 # define PHYSICS_HH_
 
 # include "../lib.hh"
-// # include <fstream>
-// # include <iostream>
-// # include <string>
-// # include <iomanip>
-// # include <stdlib.h>
-// # include <fstream>
-// # include <sstream>
 
-class Particle
+class Shape
 {
 public:
-  Particle(int x, int y, int z, int id);
-  Particle(int id);
-  ~Particle();
+  virtual ~Shape() {};
   void position(float x, float y, float z);
   void colorate(float r, float g, float b);
+  void rotation_cst(float x, float y, float z);
   void rotation(float x, float y, float z);
   void move(float x, float y, float z);
+  void translate(float x, float y, float z);
+  void update();
 
-  void display();
-private:
+  virtual void display() = 0;
+
+protected:
   int   id_;
   float	posX_;
   float posY_;
@@ -30,6 +25,9 @@ private:
   float movX_;
   float movY_;
   float movZ_;
+  float rotX_;
+  float rotY_;
+  float rotZ_;
   float r_;
   float g_;
   float b_;
@@ -37,13 +35,26 @@ private:
 };
 
 
-class ParticleList
+class Particle : public Shape
+{
+public:
+  Particle(int x, int y, int z, int id);
+  Particle(int id);
+  ~Particle();
+
+  void display();
+};
+
+
+class ParticleList : public Shape
 {
 public:
   ParticleList(unsigned int partic_nb);
   ~ParticleList();
-  void update_particles(float rot_angle, float rot_mov);
-  void display_particles();
+
+  void update_particles_cube(float rot_angle, float rot_mov);
+
+  void display();
 private:
   unsigned int				partic_nb_;
   std::map<unsigned int, Particle*>	particles_map_;

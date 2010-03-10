@@ -2,11 +2,8 @@
 
 int	sys_init(unsigned int	h)
 {
-  if (!glextInit())
+  if (! init_GL(WIDTH, HEIGHT, BPP, FULLSCREEN))
     return 0;
-#ifdef DEBUG
-  mwrite("== glextInit : OK ==\n");
-#endif
 
   timer_init(1);
 
