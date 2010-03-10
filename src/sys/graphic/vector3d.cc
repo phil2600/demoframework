@@ -1,3 +1,5 @@
+#ifdef FREE_LOOK
+
 #include "../lib.hh"
 
 Vector3D::Vector3D(double x,double y,double z)
@@ -33,7 +35,6 @@ Vector3D::operator= (const Vector3D &point)
   return *this;
 }
 
-
 Vector3D&
 Vector3D::operator+= (const Vector3D &v)
 {
@@ -47,6 +48,7 @@ Vector3D::operator+ (const Vector3D &v) const
 {
   Vector3D ptTmp(v);
   ptTmp.Add(*this);
+
   return ptTmp;
 }
 
@@ -69,13 +71,20 @@ Vector3D::operator- (const Vector3D &v) const
 Vector3D&
 Vector3D::operator*= (const double a)
 {
-
+  X *= a;
+  Y *= a;
+  Z *= a;
+  return *this;
 }
 
 Vector3D
 Vector3D::operator* (const double a)const
 {
-
+  Vector3D ptTmp(*this);
+  ptTmp.X *= a;
+  ptTmp.Y *= a;
+  ptTmp.Z *= a;
+  return ptTmp;
 }
 
 // friend Vector3D
@@ -113,7 +122,24 @@ Vector3D::length()const
 Vector3D&
 Vector3D::normalize()
 {
+  float n, nn;
 
+  nn = sqrt(X) + sqrt(Y) + sqrt(Z);
+  if (nn < ZERO)
+  {
+    X *= 0;
+    Y *= 0;
+    Z *= 0;
+    return *this;
+  }
+
+  nn = (float) sqrt(nn);
+  n = 1.0f / nn;
+  X *= n;
+  Y *= n;
+  Z *= n;
+
+  return *this;
 }
 
 // NormaliZes this vector, and returns the scalar value used to normaliZe the vector.
@@ -185,3 +211,12 @@ Vector3D::Lerp(const Vector3D &a, const Vector3D &b, float fPercent)
   Y = a.Y*(1.f-fPercent) + b.Y*fPercent;
   Z = a.Z*(1.f-fPercent) + b.Z*fPercent;
 }
+
+void
+Vector3D::CrossProduct(const Vector3D &a, const Vector3D &b)
+{
+  X = a.Y * b.Z - b.Y * a.Z;
+  Y = b.X * a.Z - a.X * b.Z;
+  Z = a.X * b.Y - b.X * a.Y;
+}
+#endif /* FREE_LOOK */

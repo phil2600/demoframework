@@ -14,8 +14,9 @@ float resize_z = 1.0f;
 float key_up_down, key_left_right, keyzoom, lr, ud = 0;
 /* FIXME */
 
-
+#ifdef FREE_LOOK
 FreeFlyCamera * camera;
+#endif
 
 ParticleList particle_cube (MAX_PARTICLES);
 
@@ -33,7 +34,9 @@ int	main (int argc,char** argv)
   if (! sys_init(0))
     exit(1);
 
+#ifdef FREE_LOOK
   camera = new FreeFlyCamera(Vector3D(0,0,2));
+#endif
 
   process_display();
 
@@ -58,8 +61,9 @@ void		draw_shapes(void)
   /* Draw Orthogonal Repere */
   draw_repere(50);
 
-  //   GLUquadric* params = gluNewQuadric(); //création du quadrique
-  //   gluCylinder(params,0.5,0,1.6,20,1); //cône 1
+    GLUquadric* params = gluNewQuadric(); //création du quadrique
+    gluQuadricDrawStyle(params,GLU_LINE);
+    gluSphere(params,0.75,20,20);
 
   /* Draw Particle Cube */
   glPushMatrix();
@@ -83,10 +87,13 @@ void display()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+#ifdef FREE_LOOK
   camera->look();
+#else
+  gluLookAt(1.5, 1.5, 5 + keyzoom, 1.5, 1.5, 0, 0, 1, 0);
+#endif
 
   //gluLookAt(camX, camY, camZ, cibleX, cibleY, cibleZ, vertX, vertY, vertZ);
-//  gluLookAt(1.5, 1.5, 5 + keyzoom, 1.5, 1.5, 0, 0, 1, 0);
 
   //  glTranslatef(key_left_right, key_up_down, -70.0 + keyzoom);
 
@@ -95,6 +102,9 @@ void display()
   glFlush();
   SDL_GL_SwapBuffers();
 }
+
+
+
 
 void event_management(SDL_Event *event, char *quit)
 {
@@ -114,6 +124,30 @@ void event_management(SDL_Event *event, char *quit)
  	  case SDLK_ESCAPE:
  	    *quit = 1;
  	    break;
+#ifndef FREE_LOOK
+	  case SDLK_LEFT:
+	    key_left_right += 1;
+	    break;
+	  case SDLK_RIGHT:
+	    key_left_right -= 1;
+	    break;
+	  case SDLK_UP:
+	    key_up_down -= 1;
+	    break;
+	  case SDLK_DOWN:
+	    key_up_down += 1;
+	    break;
+
+	  case SDLK_KP_MINUS:
+	    keyzoom -= 1.0;
+	    break;
+	  case SDLK_KP_PLUS:
+	    keyzoom += 1.0;
+	    break;
+	  default:
+	    break;
+	}
+#else /* FREE_LOOK */
 	  default :
 	    camera->OnKeyboard(event->key);
 	}
@@ -128,6 +162,7 @@ void event_management(SDL_Event *event, char *quit)
       case SDL_MOUSEBUTTONDOWN:
 	camera->OnMouseButton(event->button);
 	break;
+#endif /* ! FREE_LOOK */
     }
 }
 
@@ -152,7 +187,9 @@ int process_display()
     elapsed_time = current_time - last_time;
     last_time = current_time;
 
+#ifdef FREE_LOOK
     camera->animate(elapsed_time);
+#endif
 
     //    update_events();
     update_shapes();
@@ -227,30 +264,3 @@ int process_display()
 //   else
 //     rot_mov += 0.2;
 // }
-
-
-	// 	  case SDLK_LEFT:
-	// 	    key_left_right += 1;
-	// 	    break;
-	// 	  case SDLK_RIGHT:
-	// 	    key_left_right -= 1;
-	// 	    break;
-	// 	  case SDLK_UP:
-	// 	    key_up_down -= 1;
-	// 	    break;
-	// 	  case SDLK_DOWN:
-	// 	    key_up_down += 1;
-	// 	    break;
-
-	// 	  case SDLK_KP_MINUS:
-	// 	    keyzoom -= 1.0;
-	// 	    break;
-	// 	  case SDLK_KP_PLUS:
-	// 	    keyzoom += 1.0;
-	// 	    break;
-	// 	  case SDLK_ESCAPE:
-	// 	    *quit = 1;
-	// 	    break;
-	// 	  default:
-	// 	    continue;
-	//    }

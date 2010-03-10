@@ -1,5 +1,7 @@
-#include "../lib.hh"
-#include "../includes/graphic.hh"
+#ifdef FREE_LOOK
+
+# include "../lib.hh"
+# include "../includes/graphic.hh"
 
 FreeFlyCamera::FreeFlyCamera(const Vector3D &position)
 {
@@ -39,8 +41,8 @@ FreeFlyCamera::~FreeFlyCamera()
 void
 FreeFlyCamera::OnMouseMotion(const SDL_MouseMotionEvent &event)
 {
-  theta_ -= event.xrel*sensivity_;
-  phi_ -= event.yrel*sensivity_;
+  theta_ -= event.xrel * sensivity_;
+  phi_ -= event.yrel * sensivity_;
   VectorsFromAngles();
 }
 
@@ -55,12 +57,12 @@ FreeFlyCamera::VectorsFromAngles()
   else if (phi_ < -89)
     phi_ = -89;
 
-  double r_temp = cos(phi_*M_PI/180);
-  forward_.Z = sin(phi_*M_PI/180);
-  forward_.X = r_temp*cos(theta_*M_PI/180);
-  forward_.Y = r_temp*sin(theta_*M_PI/180);
+  double r_temp = cos(phi_ * M_PI / 180);
+  forward_.Z = sin(phi_ * M_PI / 180);
+  forward_.X = r_temp * cos(theta_ * M_PI / 180);
+  forward_.Y = r_temp * sin(theta_ * M_PI / 180);
 
-  left_ = up.crossProduct(forward_);
+  left_.CrossProduct(up, forward_);
   left_.normalize();
 
   target_ = position_ + forward_;
@@ -122,7 +124,7 @@ FreeFlyCamera::animate(Uint32 timestep)
       verticalMotionActive_ = false;
     else
       timeBeforeStoppingVerticalMotion_ -= timestep;
-    position_ += Vector3D(0,0,verticalMotionDirection_*realspeed*timestep);
+    position_ += Vector3D(0, 0, verticalMotionDirection_ * realspeed * timestep);
   }
   target_ = position_ + forward_;
 
@@ -132,9 +134,9 @@ FreeFlyCamera::animate(Uint32 timestep)
 void
 FreeFlyCamera::look()
 {
-  gluLookAt(position_.X,position_.Y,position_.Z,
-	    target_.X,target_.Y,target_.Z,
-	    0,0,1);
+  gluLookAt(position_.X, position_.Y, position_.Z,
+	    target_.X, target_.Y, target_.Z,
+	    0, 0, 1);
 }
 
 
@@ -158,4 +160,4 @@ FreeFlyCamera::setPosition(const Vector3D &position)
   position_ = position;
 }
 
-
+#endif /* FREE_LOOK */

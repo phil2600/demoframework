@@ -49,6 +49,8 @@ src/sys/graphic/fly_cam.cc
 
 EOF
 
+echo "  $@" >> Makefile.rules
+
 
 #   CFLAGS=-O2 -fPIC -DLITTLEENDIAN -DPC -DMULTIPROCESSOR -DLINUX
 #   CFLAGS+=-fomit-frame-pointer -fno-rtti

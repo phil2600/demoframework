@@ -55,6 +55,8 @@ public:
   void Subtract(const Vector3D &other);
   void Combine(const Vector3D &other, float s);
   void Lerp(const Vector3D &a, const Vector3D &b, float fPercent);
+
+  void CrossProduct(const Vector3D &a, const Vector3D &b);
 };
 
 
