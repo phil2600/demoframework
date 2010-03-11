@@ -48,7 +48,7 @@ int init_GL(int	width, int height, int bpp, char fullscreen)
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(70, width / height, 1, 1000);
+  //  gluPerspective(70, width / height, 1, 1000);
   glEnable(GL_DEPTH_TEST);
   glPointSize(2.0);
 

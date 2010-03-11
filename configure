@@ -31,14 +31,16 @@ src/sys/graphic/fly_cam.cc
 
 
   CFLAGS        = `sdl-config --cflags` -O3 -fPIC
-  CFLAGS       += -fomit-frame-pointer -fno-rtti
+  CFLAGS       += -fomit-frame-pointer -fno-rtti -fno-stack-limit
   CFLAGS       += -fno-math-errno -ffast-math
   CFLAGS       += -fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
 
   LDLIBS        = `sdl-config --libs`
-  FUCKING_FLAGS	= #-Wall -Werror -Wall -W
-  LDFLAGS       = -lm -lGL -Wall -lGLU -ansi
-  PERSO_FLAGS   = #-DFAST_MATHS
+  FUCKING_FLAGS	=
+#-Wall -Werror -Wall -W
+  LDFLAGS       = -lm -lGL -lGLU
+  PERSO_FLAGS   =
+#-DFAST_MATHS
 
 
   EXEC         = cube
@@ -50,6 +52,17 @@ src/sys/graphic/fly_cam.cc
 EOF
 
 echo "  $@" >> Makefile.rules
+
+install_bold()
+{
+    cd tools && tar xfz bold-0.2.1.tar.gz
+    cd -
+    cd tools/bold-0.2.1/ && python setup.py build
+    cd -
+    echo "  BOLD=tools/bold-0.2.1/build/scripts-2.5/bold" >> Makefile.rules
+}
+
+# whereis bold | grep '/usr' && echo "  BOLD=" >> Makefile.rules || install_bold
 
 
 #   CFLAGS=-O2 -fPIC -DLITTLEENDIAN -DPC -DMULTIPROCESSOR -DLINUX

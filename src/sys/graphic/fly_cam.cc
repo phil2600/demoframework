@@ -57,12 +57,12 @@ FreeFlyCamera::VectorsFromAngles()
   else if (phi_ < -89)
     phi_ = -89;
 
-  double r_temp = cos(phi_ * M_PI / 180);
+  float r_temp = cos(phi_ * M_PI / 180);
   forward_.Z = sin(phi_ * M_PI / 180);
   forward_.X = r_temp * cos(theta_ * M_PI / 180);
   forward_.Y = r_temp * sin(theta_ * M_PI / 180);
 
-  left_.CrossProduct(up, forward_);
+  left_ = up.crossProduct(forward_);
   left_.normalize();
 
   target_ = position_ + forward_;
@@ -108,7 +108,7 @@ void
 FreeFlyCamera::animate(Uint32 timestep)
 {
   // Considering boost
-  double realspeed = (_keystates[keyconf_["boost"]]) ? (10 * speed_) : speed_;
+  float realspeed = (_keystates[keyconf_["boost"]]) ? (10 * speed_) : speed_;
 
   if (_keystates[keyconf_["forward"]])
     position_ += forward_ * (realspeed * timestep);
@@ -141,14 +141,14 @@ FreeFlyCamera::look()
 
 
 void
-FreeFlyCamera::setSpeed(double speed)
+FreeFlyCamera::setSpeed(float speed)
 {
   speed_ = speed;
 }
 
 
 void
-FreeFlyCamera::setSensivity(double sensivity)
+FreeFlyCamera::setSensivity(float sensivity)
 {
   sensivity_ = sensivity;
 }

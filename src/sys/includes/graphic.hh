@@ -20,12 +20,12 @@ void	draw_repere(unsigned int scale = 1);
 class Vector3D
 {
 public:
-  double X;
-  double Y;
-  double Z;
+  float X;
+  float Y;
+  float Z;
 
-  Vector3D() {};
-  Vector3D(double x,double y,double z);
+  Vector3D();
+  Vector3D(float x,float y,float z);
   Vector3D(const Vector3D &v);
   Vector3D(const Vector3D &a,const Vector3D &b);
 
@@ -37,26 +37,22 @@ public:
   Vector3D &operator-= (const Vector3D &v);
   Vector3D operator- (const Vector3D &v) const;
 
-  Vector3D &operator*= (const double a);
-  Vector3D operator* (const double a)const;
-//   friend Vector3D operator* (const double a,const Vector3D &v);
+  Vector3D &operator*= (const float a);
+  Vector3D operator* (const float a)const;
+  friend Vector3D operator* (const float a,const Vector3D &v);
 
-  Vector3D &operator/= (const double a);
-  Vector3D operator/ (const double a)const;
+  Vector3D &operator/= (const float a);
+  Vector3D operator/ (const float a)const;
 
   Vector3D crossProduct(const Vector3D &v)const;
-  double length()const;
+  float length()const;
   Vector3D &normalize();
 
-  float Normalize();
-  void Zero();
-  void Scale(float s);
-  void Add(const Vector3D &other);
-  void Subtract(const Vector3D &other);
-  void Combine(const Vector3D &other, float s);
-  void Lerp(const Vector3D &a, const Vector3D &b, float fPercent);
-
-  void CrossProduct(const Vector3D &a, const Vector3D &b);
+  float normalize_float();
+  void  Zero();
+  void  Scale(float s);
+  void  Combine(const Vector3D &other, float s);
+  void  Lerp(const Vector3D &a, const Vector3D &b, float fPercent);
 };
 
 
@@ -74,15 +70,15 @@ public:
 
   virtual void animate(Uint32 timestep);
 
-  virtual void setSpeed(double speed);
-  virtual void setSensivity(double sensivity);
+  virtual void setSpeed(float speed);
+  virtual void setSensivity(float sensivity);
   virtual void setPosition(const Vector3D &position);
 
   virtual void look();
 
 protected:
-  double speed_;
-  double sensivity_;
+  float speed_;
+  float sensivity_;
 
   Uint32 timeBeforeStoppingVerticalMotion_;
   bool verticalMotionActive_;
@@ -97,8 +93,8 @@ protected:
   Vector3D target_;
   Vector3D forward_;
   Vector3D left_;
-  double theta_;
-  double phi_;
+  float theta_;
+  float phi_;
 
   void VectorsFromAngles();
 };

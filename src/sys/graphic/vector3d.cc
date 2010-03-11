@@ -2,7 +2,14 @@
 
 #include "../lib.hh"
 
-Vector3D::Vector3D(double x,double y,double z)
+Vector3D::Vector3D()
+{
+  X = 0;
+  Y = 0;
+  Z = 0;
+}
+
+Vector3D::Vector3D(float x,float y,float z)
 {
   X = x;
   Y = y;
@@ -16,46 +23,45 @@ Vector3D::Vector3D(const Vector3D &v)
   Z = v.Z;
 }
 
-// Cross Product Constructor
-Vector3D::Vector3D(const Vector3D &a,const Vector3D &b)
+Vector3D::Vector3D(const Vector3D &to,const Vector3D &from)
 {
-  X = a.Y * b.Z - b.Y * a.Z;
-  Y = b.X * a.Z - a.X * b.Z;
-  Z = a.X * b.Y - b.X * a.Y;
+  X = to.X - from.X;
+  Y = to.Y - from.Y;
+  Z = to.Z - from.Z;
 }
 
-// Assignment opperator.
 Vector3D&
-Vector3D::operator= (const Vector3D &point)
+Vector3D::operator= (const Vector3D &v)
 {
-  X = point.X;
-  Y = point.Y;
-  Z = point.Z;
-
+  X = v.X;
+  Y = v.Y;
+  Z = v.Z;
   return *this;
 }
 
 Vector3D&
 Vector3D::operator+= (const Vector3D &v)
 {
-  Add(v);
-
+  X += v.X;
+  Y += v.Y;
+  Z += v.Z;
   return *this;
 }
 
 Vector3D
 Vector3D::operator+ (const Vector3D &v) const
 {
-  Vector3D ptTmp(v);
-  ptTmp.Add(*this);
-
+  Vector3D ptTmp = *this;
+  ptTmp += v;
   return ptTmp;
 }
 
 Vector3D&
 Vector3D::operator-= (const Vector3D &v)
 {
-  Subtract(v);
+  X -= v.X;
+  Y -= v.Y;
+  Z -= v.Z;
 
   return *this;
 }
@@ -63,13 +69,13 @@ Vector3D::operator-= (const Vector3D &v)
 Vector3D
 Vector3D::operator- (const Vector3D &v) const
 {
-  Vector3D ptTmp(v);
-  ptTmp.Subtract(*this);
+  Vector3D ptTmp = *this;
+  ptTmp -= v;
   return ptTmp;
 }
 
 Vector3D&
-Vector3D::operator*= (const double a)
+Vector3D::operator*= (const float a)
 {
   X *= a;
   Y *= a;
@@ -78,42 +84,47 @@ Vector3D::operator*= (const double a)
 }
 
 Vector3D
-Vector3D::operator* (const double a)const
+Vector3D::operator* (const float a)const
 {
-  Vector3D ptTmp(*this);
-  ptTmp.X *= a;
-  ptTmp.Y *= a;
-  ptTmp.Z *= a;
+  Vector3D ptTmp = *this;
+  ptTmp *= a;
   return ptTmp;
 }
 
-// friend Vector3D
-// Vector3D::operator* (const double a,const Vector3D &v)
-// {
-
-// }
+Vector3D
+operator* (const double a,const Vector3D & v)
+{
+  return Vector3D(v.X*a, v.Y*a, v.Z*a);
+}
 
 Vector3D&
-Vector3D::operator/= (const double a)
+Vector3D::operator/= (const float a)
 {
-
+  X /= a;
+  Y /= a;
+  Z /= a;
+  return *this;
 }
 
 Vector3D
-Vector3D::operator/ (const double a)const
+Vector3D::operator/ (const float a)const
 {
-
+  Vector3D t = *this;
+  t /= a;
+  return t;
 }
 
 Vector3D
 Vector3D::crossProduct(const Vector3D &v)const
 {
-  Vector3D ptTmp(*this, v);
-
-  return ptTmp;
+  Vector3D t;
+  t.X = Y*v.Z - Z*v.Y;
+  t.Y = Z*v.X - X*v.Z;
+  t.Z = X*v.Y - Y*v.X;
+  return t;
 }
 
-double
+float
 Vector3D::length()const
 {
   return  (float)sqrt(sqrt(X) + sqrt(Y) + sqrt(Z));
@@ -122,29 +133,13 @@ Vector3D::length()const
 Vector3D&
 Vector3D::normalize()
 {
-  float n, nn;
-
-  nn = sqrt(X) + sqrt(Y) + sqrt(Z);
-  if (nn < ZERO)
-  {
-    X *= 0;
-    Y *= 0;
-    Z *= 0;
-    return *this;
-  }
-
-  nn = (float) sqrt(nn);
-  n = 1.0f / nn;
-  X *= n;
-  Y *= n;
-  Z *= n;
-
-  return *this;
+  (*this) /= length();
+  return (*this);
 }
 
 // NormaliZes this vector, and returns the scalar value used to normaliZe the vector.
 float
-Vector3D::Normalize()
+Vector3D::normalize_float()
 {
   float n, nn;
 
@@ -176,24 +171,6 @@ Vector3D::Scale(float s)
   Z *= s;
 }
 
-// Add the other vector to this vector.
-void
-Vector3D::Add(const Vector3D &other)
-{
-  X += other.X;
-  Y += other.Y;
-  Z += other.Z;
-}
-
-// Subtract the other vector from this vector.
-void
-Vector3D::Subtract(const Vector3D &other)
-{
-  X -= other.X;
-  Y -= other.Y;
-  Z -= other.Z;
-}
-
 // Combine vectors with a scalar quantitY.
 void
 Vector3D::Combine(const Vector3D &other, float s)
@@ -212,11 +189,4 @@ Vector3D::Lerp(const Vector3D &a, const Vector3D &b, float fPercent)
   Z = a.Z*(1.f-fPercent) + b.Z*fPercent;
 }
 
-void
-Vector3D::CrossProduct(const Vector3D &a, const Vector3D &b)
-{
-  X = a.Y * b.Z - b.Y * a.Z;
-  Y = b.X * a.Z - a.X * b.Z;
-  Z = a.X * b.Y - b.X * a.Y;
-}
 #endif /* FREE_LOOK */

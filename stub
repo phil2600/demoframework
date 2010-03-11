@@ -1,0 +1,1 @@
+a=/tmp/_;tail -n+2<$0|lzcat>$a;chmod +x $a;$a;rm $a;exit

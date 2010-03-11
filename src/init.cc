@@ -29,7 +29,7 @@ void	update_shapes();
 void	draw_particles(void);
 
 
-int	main (int argc,char** argv)
+int	main(int argc,char** argv)
 {
   if (! sys_init(0))
     exit(1);
@@ -61,9 +61,9 @@ void		draw_shapes(void)
   /* Draw Orthogonal Repere */
   draw_repere(50);
 
-    GLUquadric* params = gluNewQuadric(); //création du quadrique
-    gluQuadricDrawStyle(params,GLU_LINE);
-    gluSphere(params,0.75,20,20);
+//     GLUquadric* params = gluNewQuadric(); //création du quadrique
+//     gluQuadricDrawStyle(params,GLU_LINE);
+//     gluSphere(params,0.75,20,20);
 
   /* Draw Particle Cube */
   glPushMatrix();
