@@ -5,7 +5,10 @@
 #define HEIGHT 768
 #define BPP 32
 #define FULLSCREEN 0
-//#define MAX_PARTICLE 100000
+
+#define FPS 50
+
+//#define MAX_PARTICLES 100000
 #define MAX_PARTICLES 1000
 
 

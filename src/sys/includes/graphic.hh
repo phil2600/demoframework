@@ -6,98 +6,122 @@
 
 # include "../lib.hh"
 
-int	init_GL(int	width, int height, int bpp, char fullscreen);
+/* GraphicalEnvironment */
+class GraphEnv
+{
+public:
+  GraphEnv();
+  GraphEnv(int width, int height, int bpp, char fullscreen);
+  ~GraphEnv();
+
+  int  get_height();
+  void set_height(int height);
+  int  get_width();
+  void set_width(int width);
+  char get_fullscreen();
+  void set_fullscreen(char fullscreen);
+  int  get_bpp();
+  void set_bpp(int bpp);
+
+
+  void OrtoOn(float xres = 640, float yres = 480);
+  void OrtoOff(void);
+private:
+  int  height_;
+  int  width_;
+  int  bpp_;
+  bool fullscreen_;
+
+};
+
+int	init_GL(GraphEnv *graphical_env);
 
 void	Reshape(int w, int h);
 
 void	draw_repere(unsigned int scale = 1);
 
-/* Vector3D */
+int	takeScreenshot(const char *filename);
 
+void	drawTVNoise(void);
+
+/* Vector3D */
 #define EPSILON  	1e-8
 #define ZERO  	 	EPSILON
 
 class Vector3D
 {
 public:
-  float X;
-  float Y;
-  float Z;
+  double X;
+  double Y;
+  double Z;
 
   Vector3D();
-  Vector3D(float x,float y,float z);
-  Vector3D(const Vector3D &v);
-  Vector3D(const Vector3D &a,const Vector3D &b);
+  Vector3D(double x,double y,double z);
+  Vector3D(const Vector3D & v);
+  Vector3D(const Vector3D & from,const Vector3D & to);
 
-  Vector3D &operator= (const Vector3D &v);
+  Vector3D & operator= (const Vector3D & v);
 
-  Vector3D &operator+= (const Vector3D &v);
-  Vector3D operator+ (const Vector3D &v) const;
+  Vector3D & operator+= (const Vector3D & v);
+  Vector3D operator+ (const Vector3D & v) const;
 
-  Vector3D &operator-= (const Vector3D &v);
-  Vector3D operator- (const Vector3D &v) const;
+  Vector3D & operator-= (const Vector3D & v);
+  Vector3D operator- (const Vector3D & v) const;
 
-  Vector3D &operator*= (const float a);
-  Vector3D operator* (const float a)const;
-  friend Vector3D operator* (const float a,const Vector3D &v);
+  Vector3D & operator*= (const double a);
+  Vector3D operator* (const double a)const;
+  friend Vector3D operator* (const double a,const Vector3D & v);
 
-  Vector3D &operator/= (const float a);
-  Vector3D operator/ (const float a)const;
+  Vector3D & operator/= (const double a);
+  Vector3D operator/ (const double a)const;
 
-  Vector3D crossProduct(const Vector3D &v)const;
-  float length()const;
-  Vector3D &normalize();
-
-  float normalize_float();
-  void  Zero();
-  void  Scale(float s);
-  void  Combine(const Vector3D &other, float s);
-  void  Lerp(const Vector3D &a, const Vector3D &b, float fPercent);
+  Vector3D crossProduct(const Vector3D & v)const;
+  double length()const;
+  Vector3D & normalize();
 };
 
 
 /* FlyCam */
-
 class FreeFlyCamera
 {
 public:
-  FreeFlyCamera(const Vector3D &position = Vector3D(0,0,0));
-  virtual ~FreeFlyCamera();
+  FreeFlyCamera(const Vector3D & position = Vector3D(0,0,0));
 
-  virtual void OnMouseMotion(const SDL_MouseMotionEvent &event);
-  virtual void OnMouseButton(const SDL_MouseButtonEvent &event);
-  virtual void OnKeyboard(const SDL_KeyboardEvent &event);
+  virtual void OnMouseMotion(const SDL_MouseMotionEvent & event);
+  virtual void OnMouseButton(const SDL_MouseButtonEvent & event);
+  virtual void OnKeyboard(const SDL_KeyboardEvent & event);
 
   virtual void animate(Uint32 timestep);
+  virtual void setSpeed(double speed);
+  virtual void setSensivity(double sensivity);
 
-  virtual void setSpeed(float speed);
-  virtual void setSensivity(float sensivity);
-  virtual void setPosition(const Vector3D &position);
+  virtual void setPosition(const Vector3D & position);
 
   virtual void look();
 
+  virtual ~FreeFlyCamera();
 protected:
-  float speed_;
-  float sensivity_;
+  double _speed;
+  double _sensivity;
 
-  Uint32 timeBeforeStoppingVerticalMotion_;
-  bool verticalMotionActive_;
-  int verticalMotionDirection_;
+  //vertical motion stuffs
+  Uint32 _timeBeforeStoppingVerticalMotion;
+  bool _verticalMotionActive;
+  int _verticalMotionDirection;
 
   typedef std::map<SDLKey,bool> KeyStates;
   KeyStates _keystates;
-  typedef std::map<std::string,SDLKey> Keyconf;
-  Keyconf keyconf_;
+  typedef std::map<std::string,SDLKey> KeyConf;
+  KeyConf _keyconf;
 
-  Vector3D position_;
-  Vector3D target_;
-  Vector3D forward_;
-  Vector3D left_;
-  float theta_;
-  float phi_;
+  Vector3D _position;
+  Vector3D _target;
+  Vector3D _forward;
+  Vector3D _left;
+  double _theta;
+  double _phi;
 
   void VectorsFromAngles();
 };
-
 
 #endif /* !GRAPHIC_HH_ */

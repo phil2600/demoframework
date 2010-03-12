@@ -1,8 +1,8 @@
 #include "lib.hh"
 
-int	sys_init(unsigned int	h)
+int	sys_init(GraphEnv *graphical_env)
 {
-  if (! init_GL(WIDTH, HEIGHT, BPP, FULLSCREEN))
+  if (! init_GL(graphical_env))
     return 0;
 
   timer_init(1);

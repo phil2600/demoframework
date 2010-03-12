@@ -65,6 +65,10 @@ ParticleList::update_particles_cube(float color_rot, float rot_mov)
     x = id / 100;
     y = (id / 10) % 10;
     z = id % 10;
+//     x = id / (MAX_PARTICLES / 10);
+//     y = (id / (MAX_PARTICLES / 100)) % (MAX_PARTICLES / 100);
+//     z = id % (MAX_PARTICLES / 100);
+
 
     i->second->position(x, y, z);
     i->second->colorate(sys_sinf (x + color_rot),	\

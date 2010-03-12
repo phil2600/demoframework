@@ -1,2 +1,3 @@
 
- * Remove malloc
+ * Wrapper malloc
+ * Faire fonctionner BOLD avec le programme (nécessite de compiler avec -m64)
