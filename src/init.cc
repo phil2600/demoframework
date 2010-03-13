@@ -34,7 +34,7 @@ void	draw_particles(void);
 
 int	main(int argc,char** argv)
 {
-  if (!sys_init(0))
+  if (!sys_init(&graphical_env))
     exit(1);
 
 #ifdef FREE_LOOK
