@@ -13,8 +13,7 @@ $(EXEC): $(OBJ)
 	@echo -n "[+] After strip: "
 	@strip -s -R .comment -R .gnu.version $(EXEC)
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
-	@echo -n "Char: "
-	@cat $(SRC) | perl -pe 's/\s//g' | wc -c
+	@cat **/**.{hh,cc,c,asm}|wc
 
 # src/sys/graphic/import.o: src/sys/graphic/import.asm src/sys/includes/graphic.hh
 # 	nasm -f elf $<
@@ -50,3 +49,7 @@ final: $(EXEC)
 
 run: final
 	bash $(FINAL)
+
+infos:
+	cat **/**.{hh,cc,c,asm} | wc | awk '{print "Lines:", $1, "\nChars:", $3}'
+

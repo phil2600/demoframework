@@ -17,6 +17,7 @@
 #include "includes/tools.hh"
 #include "includes/physics.hh"
 #include "includes/Mesh.hh"
+//#include "includes/Algebra.hh"
 
 #include "SDL.h"
 #include "SDL_opengl.h"

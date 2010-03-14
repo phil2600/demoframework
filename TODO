@@ -1,3 +1,25 @@
+ * Faire un diagramme UML
 
  * Wrapper malloc
  * Faire fonctionner BOLD avec le programme (nécessite de compiler avec -m64)
+ * Trier les fichiers mathematiques
+
+ * Se servir de la classe Camera presente dans ppg_06_refigos afin de controler la camera...
+
+ * Gestion des evenements dans le temps
+   _Selon un Script
+   _Selon la Musique
+
+ * Scripter les actions :
+   _Langage compilé ou interprété (python, xml...)
+   _S'en servir pour la conf du programme (conf OpenGL)
+   _Générer le script avec une interface (web ?)
+   _Mettre le source compressé du script en dur dans le code
+     _L'extraire au chargement
+     _Générer du code C/Cpp à l'exécution, le compiler, le charger (weird !)
+   _Gerer une timeline grace au script
+
+ * Do factory patterns for :
+   _Shapes
+   _Events
+   _GraphicalTransformations

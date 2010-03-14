@@ -32,6 +32,7 @@ void	display();
 void	update_shapes();
 void	draw_particles(void);
 
+
 int	main(int argc,char** argv)
 {
   if (!sys_init(&graphical_env))
@@ -131,8 +132,6 @@ void display()
   glFlush();
   SDL_GL_SwapBuffers();
 }
-
-
 
 
 void event_management(SDL_Event *event, char *quit)
