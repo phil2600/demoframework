@@ -6,7 +6,8 @@
 # include <time.h>
 # include <iostream>
 # include <stdio.h>
-
+# include <cmath>
+# include <cstdlib>
 
 #include "includes/defines.hh"
 
@@ -17,7 +18,8 @@
 #include "includes/tools.hh"
 #include "includes/physics.hh"
 #include "includes/Mesh.hh"
-//#include "includes/Algebra.hh"
+#include "includes/Algebre.hh"
+#include "includes/Camera.hh"
 
 #include "SDL.h"
 #include "SDL_opengl.h"

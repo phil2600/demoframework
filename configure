@@ -26,7 +26,9 @@ src/sys/graphic/vector3d.cc \
 src/sys/graphic/fly_cam.cc \
 src/sys/graphic/sdlutils.cc \
 src/sys/graphic/GraphEnv.cc \
-src/sys/graphic/Mesh.cc
+src/sys/graphic/Mesh.cc \
+src/sys/maths/Algebre.cc \
+src/sys/graphic/Camera.cc
 
 
 

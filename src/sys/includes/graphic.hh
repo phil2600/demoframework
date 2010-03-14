@@ -5,6 +5,8 @@
 # include "SDL_opengl.h"
 
 # include "../lib.hh"
+# include "Algebre.hh"
+# include "Camera.hh"
 
 /* GraphicalEnvironment */
 class GraphEnv
@@ -23,14 +25,28 @@ public:
   int  get_bpp();
   void set_bpp(int bpp);
 
-
   void OrtoOn(float xres = 640, float yres = 480);
   void OrtoOff(void);
+
+  void auxAxis();
+
+  void cameraFovLH(float fov, float aspect, float fNear, float fFar);
+  void cameraLookAtLH(CPoint camPosition, CPoint camTarget, CPoint camUp);
+
+  void     loadMatrix(CMatrix m);
+  CMatrix  getProjectionMatrix();
+  CMatrix  getModelViewMatrix();
+  CCamera* getActiveCamera();
+  void     setActiveCamera(CCamera *activeCamera);
 private:
   int  height_;
   int  width_;
   int  bpp_;
   bool fullscreen_;
+  std::string m_windowTitle;
+
+  CCamera m_dummyCamera;
+  CCamera *m_activeCamera;
 
 };
 

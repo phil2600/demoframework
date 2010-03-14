@@ -64,6 +64,12 @@ void		update_shapes()
 void		draw_shapes(void)
 {
   draw_repere(50);
+  graphical_env.auxAxis();
+//   graphical_env.getActiveCamera()->SetFar(1,10000);
+//   graphical_env.getActiveCamera()->SetFov(60);
+//   graphical_env.getActiveCamera()->Place(CPoint(0, 170, 0), CPoint(0,0,0), CPoint (0,0,-1));
+//   graphical_env.setActiveCamera(graphical_env.getActiveCamera());
+  //graphical_env.getActiveCamera()->toOGL();
 
   /* Draw Sphere */
   glPushMatrix();

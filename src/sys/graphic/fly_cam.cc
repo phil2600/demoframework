@@ -129,6 +129,11 @@ void FreeFlyCamera::look()
 	    0,0,1);
 }
 
+void FreeFlyCamera::look(CPoint camPosition, CPoint camTarget, CPoint camUp)
+{
+  gluLookAt(camPosition.x,camPosition.y,camPosition.z,camTarget.x,camTarget.y,camTarget.z,camUp.x,camUp.y,camUp.z);
+}
+
 FreeFlyCamera::~FreeFlyCamera()
 {
   SDL_WM_GrabInput(SDL_GRAB_OFF);
