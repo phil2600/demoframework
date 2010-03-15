@@ -21,7 +21,6 @@ src/sys/physics/physics.cc \
 src/sys/graphic/shapes.cc \
 src/sys/graphic/sdlutils.cc \
 src/sys/graphic/GraphEnv.cc \
-src/sys/graphic/Mesh.cc \
 src/sys/maths/Algebre.cc \
 src/sys/graphic/Camera.cc \
 src/sys/graphic/GraphEnv.cc

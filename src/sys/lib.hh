@@ -17,7 +17,6 @@
 #include "includes/random.hh"
 #include "includes/tools.hh"
 #include "includes/physics.hh"
-#include "includes/Mesh.hh"
 #include "includes/Algebre.hh"
 #include "includes/GraphEnv.hh"
 #include "includes/Camera.hh"
