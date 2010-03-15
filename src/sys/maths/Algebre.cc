@@ -7,20 +7,30 @@ using namespace std;
 /* Point */
 CPoint::CPoint(float xx, float yy, float zz, float ww)
 {
-  x=xx;
-  y=yy;
-  z=zz;
-  w=ww;
-  isUnitary=0;
+  x = xx;
+  y = yy;
+  z = zz;
+  w = ww;
+  isUnitary = 0;
 };
 
-CPoint CPoint::operator +(CPoint p)
+CPoint::CPoint(const CPoint & from,const CPoint & to)
+{
+  x = to.x - from.x;
+  y = to.y - from.y;
+  z = to.z - from.z;
+}
+
+
+CPoint
+CPoint::operator+ (CPoint p)
 {
   CPoint suma;
 
   suma.x=x+p.x;
   suma.y=y+p.y;
   suma.z=z+p.z;
+
   return suma;
 };
 
@@ -34,17 +44,6 @@ CPoint CPoint::operator -(CPoint p)
 
   return resta;
 
-};
-
-CPoint CPoint::operator *(float k)
-{
-  CPoint multiplicacion;
-
-  multiplicacion.x=x*k;
-  multiplicacion.y=y*k;
-  multiplicacion.z=z*k;
-
-  return multiplicacion;
 };
 
 float CPoint::operator [](int i)
@@ -117,6 +116,12 @@ CPoint CPoint::normalize()
   return (*this);
 };
 
+// CPoint & CPoint::normalize()
+// {
+//   (*this) /= length();
+//   return (*this);
+// }
+
 CPoint CPoint::unitary()
 {
   return ((*this).normalize());
@@ -144,10 +149,6 @@ CPoint CPoint::operator ^(CPoint p)
 {
   return CPoint( y*p.z-z*p.y, z*p.x-x*p.z, x*p.y-y*p.x );
 }
-float CPoint::operator *(CPoint p)
-{
-  return (x*p.x+y*p.y+z*p.z);
-}
 
 CPoint CPoint::homogeneus()
 {
@@ -173,6 +174,93 @@ void CPoint::write()
   printf("%6.2f %6.2f %6.2f %6.2f\n",x,y,z,w);
 };
 
+
+CPoint & CPoint::operator= (const CPoint & v)
+{
+  x = v.x;
+  y = v.y;
+  z = v.z;
+  return *this;
+}
+
+CPoint & CPoint::operator+= (const CPoint & v)
+{
+  x += v.x;
+  y += v.y;
+  z += v.z;
+  return *this;
+}
+
+CPoint CPoint::operator+ (const CPoint & v) const
+{
+  CPoint t = *this;
+  t += v;
+  return t;
+}
+
+CPoint & CPoint::operator-= (const CPoint & v)
+{
+  x -= v.x;
+  y -= v.y;
+  z -= v.z;
+  return *this;
+}
+
+CPoint CPoint::operator- (const CPoint & v) const
+{
+  CPoint t = *this;
+  t -= v;
+  return t;
+}
+
+CPoint & CPoint::operator*= (const double a)
+{
+  x *= a;
+  y *= a;
+  z *= a;
+  return *this;
+}
+
+CPoint CPoint::operator* (const double a)const
+{
+  CPoint t = *this;
+  t *= a;
+  return t;
+}
+
+CPoint operator* (const double a,const CPoint & v)
+{
+  return CPoint(v.x*a,v.y*a,v.z*a);
+}
+
+CPoint & CPoint::operator/= (const double a)
+{
+  x /= a;
+  y /= a;
+  z /= a;
+  return *this;
+}
+
+CPoint CPoint::operator/ (const double a)const
+{
+  CPoint t = *this;
+  t /= a;
+  return t;
+}
+
+CPoint CPoint::crossProduct(const CPoint & v)const
+{
+  CPoint t;
+  t.x = y*v.z - z*v.y;
+  t.y = z*v.x - x*v.z;
+  t.z = x*v.y - y*v.x;
+  return t;
+}
+
+double CPoint::length()const
+{
+  return sqrt( x*x + y*y + z*z);
+}
 
 /* Matrix */
 CMatrix::CMatrix()

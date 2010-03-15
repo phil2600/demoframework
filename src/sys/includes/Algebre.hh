@@ -3,11 +3,13 @@
 
 #include "../lib.hh"
 
+#define EPSILON  	1e-8
+#define ZERO  	 	EPSILON
+
 class CPoint;
 class CMatrix;
 class CTransformation;
 class CMatrix3d;
-
 
 class CPoint
 {
@@ -17,9 +19,27 @@ public:
   CPoint(float xx=0.0, float yy=0.0,
 	 float zz=0.0, float ww=1.0);
 
+  CPoint(const CPoint & from,const CPoint & to);
+
+  CPoint & operator= (const CPoint & v);
+  CPoint & operator+= (const CPoint & v);
+  CPoint operator+ (const CPoint & v) const;
+
+  CPoint & operator-= (const CPoint & v);
+  CPoint operator- (const CPoint & v) const;
+
+  CPoint & operator*= (const double a);
+  CPoint operator* (const double a)const;
+  friend CPoint operator* (const double a,const CPoint & v);
+
+  CPoint & operator/= (const double a);
+  CPoint operator/ (const double a)const;
+
+  CPoint crossProduct(const CPoint & v)const;
+  double length()const;
+
   CPoint operator +(CPoint p);
   CPoint operator -(CPoint p);
-  CPoint operator *(float k);
   float  operator [](int i);
   CPoint operator *(CMatrix m);
 
@@ -34,7 +54,6 @@ public:
 
   void write();
 
-  float operator *(CPoint p);
   CPoint operator ^(CPoint p);
   CPoint homogeneus();
   void randomize(CPoint p);
