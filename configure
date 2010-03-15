@@ -14,19 +14,17 @@
 cat << EOF > Makefile.rules
 
   SRC = src/init.cc \
-src/sys/sys.cc \
-src/sys/timer.cc \
 src/sys/graphic/graphic.cc \
-src/sys/graphic/gl_init.cc \
 src/sys/random/random.cc \
 src/sys/tools/tools.cc \
 src/sys/physics/physics.cc \
 src/sys/graphic/shapes.cc \
-src/sys/graphic/fly_cam.cc \
 src/sys/graphic/sdlutils.cc \
 src/sys/graphic/GraphEnv.cc \
 src/sys/graphic/Mesh.cc \
-src/sys/maths/Algebre.cc
+src/sys/maths/Algebre.cc \
+src/sys/graphic/Camera.cc \
+src/sys/graphic/GraphEnv.cc
 
 
   CC	= g++

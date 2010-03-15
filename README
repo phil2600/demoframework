@@ -3,7 +3,6 @@
     $ ./configure "PERSO_FLAGS += -D[Flags]"
 
  * Flags
-    FREE_LOOK : Mouse movements for looking around
     DEBUG     : Debug mode enabled
 
 

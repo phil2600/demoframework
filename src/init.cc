@@ -2,53 +2,35 @@
 
 // Debugging STUFF
 float rot1  = 0.0f;
-float rot_mov = 0.0f;
-
-float rescaler = 0.0f;
-
-float resize_x = 1.0f;
-float resize_y = 1.0f;
-float resize_z = 1.0f;
-
-float key_up_down, key_left_right, keyzoom, lr, ud = 0;
-
 
 /* FIXME  -  A Nettoyer */
 
 GraphEnv graphical_env(WIDTH, HEIGHT, BPP, FULLSCREEN);
 
-#ifdef FREE_LOOK
-FreeFlyCamera * camera;
-#endif
-
 ParticleList particle_cube (MAX_PARTICLES);
 ParticleList particle_cube2 (MAX_PARTICLES);
 /* FIXME */
 
-
-int	process_display();
+void	display_process();
 void	update_events();
 void	event_management(SDL_Event *event, char *quit);
 void	display();
 void	update_shapes();
 void	draw_particles(void);
 
-
 int	main(int argc,char** argv)
 {
-  if (!sys_init(&graphical_env))
-    exit(1);
+  Camera * camera;
+  graphical_env.init_GL();
 
-#ifdef FREE_LOOK
-  camera = new FreeFlyCamera(CPoint(1,1,5));
-#endif
+  graphical_env.setActiveCamera(new Camera(CPoint(1, 1, 5)));
 
-  process_display();
+  display_process();
 
   return 0;
 }
 
-void		update_shapes()
+void	update_shapes()
 {
   static float color_rot = 0.0f;
   static float moves = 0.0f;
@@ -61,9 +43,9 @@ void		update_shapes()
   particle_cube2.update_particles_cube(-color_rot, -moves);
 }
 
-void		draw_shapes(void)
+void	draw_shapes(void)
 {
-  graphical_env.auxAxis();
+  graphical_env.drawAxis3D();
 
   /* Draw Sphere */
   glPushMatrix();
@@ -115,17 +97,15 @@ void		draw_shapes(void)
   glPopMatrix();
 }
 
-void display()
+void	display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-#ifdef FREE_LOOK
-  camera->look();
-#else
-  gluLookAt(1.5, 1.5, 5 + keyzoom, 1.5, 1.5, 0, 0, 1, 0);
-#endif
+  graphical_env.getActiveCamera()->look();
+
+  //  gluLookAt(1.5, 1.5, 5, 1.5, 1.5, 0, 0, 1, 0);
 
   draw_shapes();
 
@@ -133,8 +113,7 @@ void display()
   SDL_GL_SwapBuffers();
 }
 
-
-void event_management(SDL_Event *event, char *quit)
+void	event_management(SDL_Event *event, char *quit)
 {
   while (SDL_PollEvent(event))
     switch(event->type)
@@ -144,7 +123,7 @@ void event_management(SDL_Event *event, char *quit)
 	break;
 
       case SDL_VIDEORESIZE:
-	Reshape(event->resize.w,event->resize.h);
+	graphical_env.reshape(event->resize.w,event->resize.h);
 
       case SDL_KEYDOWN:
 	switch (event->key.keysym.sym)
@@ -155,49 +134,24 @@ void event_management(SDL_Event *event, char *quit)
  	  case SDLK_ESCAPE:
  	    *quit = 1;
  	    break;
-#ifndef FREE_LOOK
-	  case SDLK_LEFT:
-	    key_left_right += 1;
-	    break;
-	  case SDLK_RIGHT:
-	    key_left_right -= 1;
-	    break;
-	  case SDLK_UP:
-	    key_up_down -= 1;
-	    break;
-	  case SDLK_DOWN:
-	    key_up_down += 1;
-	    break;
-
-	  case SDLK_KP_MINUS:
-	    keyzoom -= 1.0;
-	    break;
-	  case SDLK_KP_PLUS:
-	    keyzoom += 1.0;
-	    break;
-	  default:
-	    break;
-	}
-#else /* FREE_LOOK */
 	  default :
-	    camera->OnKeyboard(event->key);
+	    graphical_env.getActiveCamera()->OnKeyboard(event->key);
 	}
  	break;
       case SDL_KEYUP:
-	camera->OnKeyboard(event->key);
+	    graphical_env.getActiveCamera()->OnKeyboard(event->key);
 	break;
       case SDL_MOUSEMOTION:
-	camera->OnMouseMotion(event->motion);
+	    graphical_env.getActiveCamera()->OnMouseMotion(event->motion);
 	break;
       case SDL_MOUSEBUTTONUP:
       case SDL_MOUSEBUTTONDOWN:
-	camera->OnMouseButton(event->button);
+	    graphical_env.getActiveCamera()->OnMouseButton(event->button);
 	break;
-#endif /* ! FREE_LOOK */
     }
 }
 
-int process_display()
+void	display_process()
 {
   SDL_Event event;
   char quit = 0;
@@ -217,9 +171,7 @@ int process_display()
     elapsed_time = current_time - last_time;
     last_time = current_time;
 
-#ifdef FREE_LOOK
-    camera->animate(elapsed_time);
-#endif
+    graphical_env.getActiveCamera()->animate(elapsed_time);
 
     //update_events();
     update_shapes();
@@ -229,6 +181,4 @@ int process_display()
     if ((stop_time - last_time) < time_per_frame)
       SDL_Delay(time_per_frame - (stop_time - last_time));
   }
-
-  return 0;
 }

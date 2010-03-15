@@ -3,51 +3,74 @@
 
 #include "../lib.hh"
 
-class CCamera
+struct key
+{
+  //  SDLKey key;
+  char   state;
+};
+
+struct key_management
+{
+  struct key forward;
+  struct key backward;
+  struct key strafe_left;
+  struct key strafe_right;
+  struct key boost;
+};
+
+/* FlyCam */
+class Camera
 {
 public:
-  CPoint m_vposition;
-  CPoint m_vlook;
-  CPoint m_vtarget;
 
-  CPoint m_vup;
-  CPoint m_vright;
+  Camera(const CPoint & position = CPoint(0,0,0));
 
-  float fov;
+  virtual void OnMouseMotion(const SDL_MouseMotionEvent & event);
+  virtual void OnMouseButton(const SDL_MouseButtonEvent & event);
+  virtual void OnKeyboard(const SDL_KeyboardEvent & event);
 
-  float zNear,zFar;
-  float aspect;
+  virtual void animate(Uint32 timestep);
+  virtual void setSpeed(double speed);
+  virtual void setSensivity(double sensivity);
 
-  CCamera();
+  virtual void setPosition(const CPoint & position);
 
-  void Place(CPoint position, CPoint targetPosition, CPoint upVector);
+  virtual void look();
 
-  void SetFov(float _fov);
-  float GetFov(void);
-  void SetFar(float nearz,float farz);
-  void SetAspect(float aspect);
-  void MoveForward(float distance);
-  void StrafeRight(float distance);
-  void MoveUpward(float distance);
-  void rotateX(float degrees);
-  void rotateY(float degrees);
-  void rotateZ(float degrees);
-  CPoint getUp();
-  CPoint getRight();
-  CPoint getTarget();
+  virtual ~Camera();
 
-  void toOGL(void);
+  void moveForward(Uint32 distance, double speed);
+  void moveBackward(Uint32 distance, double speed);
+  void moveStrafeRight(Uint32 distance, double speed);
+  void moveStrafeLeft(Uint32 distance, double speed);
 
-  bool inFrustrum(CPoint p);
+  void rotate(float x, float y);
+protected:
+  double _speed;
+  double _sensivity;
 
-private:
+  //vertical motion stuffs
+  Uint32 _timeBeforeStoppingVerticalMotion;
+  bool _verticalMotionActive;
+  int _verticalMotionDirection;
 
-  void recalc(void);
-  unsigned int isReady;
+  struct key_management keys_;
 
-  void SetPos(float x,float y, float z);
-  void SetPos(CPoint _position);
-  void SetLook(float _x,float _y, float _z);
+  // Use a fucking lot of memory !!!!
+//   typedef std::map<SDLKey,bool> KeyStates;
+//   KeyStates _keystates;
+//   typedef std::map<std::string,SDLKey> KeyConf;
+//   KeyConf _keyconf;
+
+  CPoint _position;
+  CPoint _target;
+  CPoint _forward;
+  CPoint _left;
+  double _theta;
+  double _phi;
+
+  void VectorsFromAngles();
+  void recalc();
 };
 
 #endif /* !CAMERA_HH_ */

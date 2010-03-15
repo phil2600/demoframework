@@ -1,48 +1,21 @@
 #include "../lib.hh"
 
-
-GraphEnv::GraphEnv()
-{
-}
-
 GraphEnv::GraphEnv(int width, int height, int bpp, char fullscreen)
 {
   width_ = width;
   height_ = height;
   bpp_ = bpp;
   fullscreen_ = fullscreen;
-
-  windowTitle_ = "Cubophile !";
 }
 
 GraphEnv::~GraphEnv()
 {
-
 }
 
 int
-GraphEnv::get_height()
+GraphEnv::get_bpp()
 {
-  return height_;
-}
-
-void
-GraphEnv::set_height(int height)
-{
-  height_ = height;
-}
-
-int
-
-GraphEnv::get_width()
-{
-  return width_;
-}
-
-void
-GraphEnv::set_width(int width)
-{
-  width_ = width;
+  return bpp_;
 }
 
 char
@@ -51,16 +24,16 @@ GraphEnv::get_fullscreen()
   return fullscreen_;
 }
 
-void
-GraphEnv::set_fullscreen(char fullscreen)
+int
+GraphEnv::get_height()
 {
-  fullscreen_ = fullscreen;
+  return height_;
 }
 
 int
-GraphEnv::get_bpp()
+GraphEnv::get_width()
 {
-  return bpp_;
+  return width_;
 }
 
 void
@@ -70,16 +43,87 @@ GraphEnv::set_bpp(int bpp)
 }
 
 void
-GraphEnv::OrtoOn(float xres, float yres )
+GraphEnv::set_fullscreen(char fullscreen)
+{
+  fullscreen_ = fullscreen;
+}
+
+void
+GraphEnv::set_height(int height)
+{
+  height_ = height;
+}
+
+void
+GraphEnv::set_width(int width)
+{
+  width_ = width;
+}
+
+void
+GraphEnv::init_GL()
+{
+  int multiSampling = 1;
+  int multiSamplingBuffers = 4;
+  SDL_Surface *fenetre;
+  Uint32 flags = SDL_OPENGL
+    | SDL_GL_DOUBLEBUFFER
+    | SDL_HWPALETTE
+    | SDL_RESIZABLE
+    | SDL_HWSURFACE
+    | SDL_HWACCEL;
+
+  if (SDL_Init(SDL_INIT_VIDEO) == -1)
+    exit (1);
+
+  atexit(SDL_Quit);
+  SDL_WM_SetCaption("Cubophile !", NULL);
+
+  if (fullscreen_)
+    flags |= SDL_FULLSCREEN;
+
+  if (!(fenetre = SDL_SetVideoMode(width_, height_, bpp_, flags)))
+    exit (1);
+
+  if(multiSampling)
+  {
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, true);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, multiSamplingBuffers);
+  }
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(70, width_ / height_, 0.001, 1000);
+  glEnable(GL_DEPTH_TEST);
+
+  glPointSize(2.0);
+}
+
+void
+GraphEnv::reshape(int width, int height)
+{
+  glViewport (0, 0, width_, height_);
+
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity();
+
+  gluPerspective(70, width_ / height_, 0.001, 1000);
+
+  glMatrixMode (GL_MODELVIEW);
+  glLoadIdentity();
+}
+
+void
+GraphEnv::orthoOn(float xres, float yres )
 {
   float xrespartido2 = 0;
   float yrespartido2 = 0;
 
-  if(xres == -1)
+  if (xres == -1)
     xres = width_;
 
-  if(yres == -1)
-    yres == height_;
+  if (yres == -1)
+    yres = height_;
 
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
@@ -92,16 +136,15 @@ GraphEnv::OrtoOn(float xres, float yres )
 }
 
 void
-GraphEnv::OrtoOff(void)
+GraphEnv::orthoOff(void)
 {
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
 }
 
-
 void
-GraphEnv::auxAxis()
+GraphEnv::drawAxis3D()
 {
   glLineWidth(3.0f);
   glColor3f(1.0f, 0.0, 0.0);
@@ -163,19 +206,17 @@ GraphEnv::cameraFovLH(float fov, float aspect, float fNear, float fFar)
   gluPerspective(fov, aspect, fNear, fFar);
 }
 
-#ifdef FREE_LOOK
-FreeFlyCamera*
+Camera*
 GraphEnv::getActiveCamera()
 {
   return activeCamera_;
 }
 
 void
-GraphEnv::setActiveCamera(FreeFlyCamera *activeCamera)
+GraphEnv::setActiveCamera(Camera *activeCamera)
 {
   activeCamera_ = activeCamera;
 }
-#endif
 
 CMatrix
 GraphEnv::getModelViewMatrix()
@@ -243,33 +284,33 @@ GraphEnv::getProjectionMatrix()
 void
 GraphEnv::loadMatrix(CMatrix m)
 {
-	double values[16];
+  double values[16];
 
-	/*
-	 ( m[0]   m[4]   m[8]    m[12] )
-	 |m[1]   m[5]    m[9]   m[13]  |
-	 |m[2]   m[6]   m[10]   m[14]  |
-	 (m[3]   m[7]   m[11]   m[15]  )
-	 */
-	values[0] = m.e[0][0];
-	values[1] = m.e[1][0];
-	values[2] = m.e[2][0];
-	values[3] = m.e[3][0];
+  /*
+    ( m[0]   m[4]   m[8]    m[12] )
+    |m[1]   m[5]    m[9]   m[13]  |
+    |m[2]   m[6]   m[10]   m[14]  |
+    (m[3]   m[7]   m[11]   m[15]  )
+  */
+  values[0] = m.e[0][0];
+  values[1] = m.e[1][0];
+  values[2] = m.e[2][0];
+  values[3] = m.e[3][0];
 
-	values[4] = m.e[0][1];
-	values[5] = m.e[1][1];
-	values[6] = m.e[2][1];
-	values[7] = m.e[3][1];
+  values[4] = m.e[0][1];
+  values[5] = m.e[1][1];
+  values[6] = m.e[2][1];
+  values[7] = m.e[3][1];
 
-	values[8] = m.e[0][2];
-	values[9] = m.e[1][2];
-	values[10] = m.e[2][2];
-	values[11] = m.e[3][2];
+  values[8] = m.e[0][2];
+  values[9] = m.e[1][2];
+  values[10] = m.e[2][2];
+  values[11] = m.e[3][2];
 
-	values[12] = m.e[0][3];
-	values[13] = m.e[1][3];
-	values[14] = m.e[2][3];
-	values[15] = m.e[3][3];
+  values[12] = m.e[0][3];
+  values[13] = m.e[1][3];
+  values[14] = m.e[2][3];
+  values[15] = m.e[3][3];
 
-	glLoadMatrixd(values);
+  glLoadMatrixd(values);
 }

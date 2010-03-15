@@ -11,5 +11,4 @@
 //#define MAX_PARTICLES 100000
 #define MAX_PARTICLES 1000
 
-
 #endif /* !DEFINES_HH_ */
