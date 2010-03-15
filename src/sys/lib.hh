@@ -19,7 +19,6 @@
 #include "includes/physics.hh"
 #include "includes/Mesh.hh"
 #include "includes/Algebre.hh"
-#include "includes/Camera.hh"
 
 #include "SDL.h"
 #include "SDL_opengl.h"

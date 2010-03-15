@@ -1,0 +1,16 @@
+-= Configure =-
+ * Usage
+    $ ./configure "PERSO_FLAGS += -D[Flags]"
+
+ * Flags
+    FREE_LOOK : Mouse movements for looking around
+    DEBUG     : Debug mode enabled
+
+
+-= Makefile Options =-
+all	 : Creation of the stripped binary
+final	 : The binary is compressed with lzma
+	   and a stub was added on its ELF beginning
+clean	 : classical cleaner
+mrproper : Conchita cleaner !
+dist	 : Tarball creation

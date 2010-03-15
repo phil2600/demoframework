@@ -1,18 +1,9 @@
 #include "sys/lib.hh"
 
-/* FIXME */
+// Debugging STUFF
 float rot1  = 0.0f;
 
-float rot_mov = 0.0f;
-
-float rescaler = 0.0f;
-
-float resize_x = 1.0f;
-float resize_y = 1.0f;
-float resize_z = 1.0f;
-
-float key_up_down, key_left_right, keyzoom, lr, ud = 0;
-
+/* FIXME  -  A Nettoyer */
 GraphEnv graphical_env(WIDTH, HEIGHT, BPP, FULLSCREEN);
 
 #ifdef FREE_LOOK
@@ -25,7 +16,6 @@ ParticleList particle_cube2 (MAX_PARTICLES);
 
 
 int	process_display();
-
 void	update_events();
 void	event_management(SDL_Event *event, char *quit);
 void	display();
@@ -39,14 +29,13 @@ int	main(int argc,char** argv)
     exit(1);
 
 #ifdef FREE_LOOK
-  camera = new FreeFlyCamera(Vector3D(1,1,5));
+  camera = new FreeFlyCamera(CPoint(1,1,5));
 #endif
 
   process_display();
 
   return 0;
 }
-
 
 void		update_shapes()
 {
@@ -63,13 +52,7 @@ void		update_shapes()
 
 void		draw_shapes(void)
 {
-  draw_repere(50);
   graphical_env.auxAxis();
-//   graphical_env.getActiveCamera()->SetFar(1,10000);
-//   graphical_env.getActiveCamera()->SetFov(60);
-//   graphical_env.getActiveCamera()->Place(CPoint(0, 170, 0), CPoint(0,0,0), CPoint (0,0,-1));
-//   graphical_env.setActiveCamera(graphical_env.getActiveCamera());
-  //graphical_env.getActiveCamera()->toOGL();
 
   /* Draw Sphere */
   glPushMatrix();
@@ -108,7 +91,7 @@ void		draw_shapes(void)
   /* Draw Particle Cube 2 */
   glPushMatrix();
 
-  //  rot1 -= 1.0f;
+  rot1 -= 1.0f;
   particle_cube2.rotation(-rot1, -rot1, -rot1);
   particle_cube2.rotation_cst(0, 0, 0);
   particle_cube2.position(0,13,0);
@@ -212,8 +195,6 @@ int process_display()
   Uint32 last_time = SDL_GetTicks();
   Uint32 current_time,elapsed_time;
   Uint32 start_time, stop_time;
-
-  //  Reshape(WIDTH, HEIGHT);
 
   while (!quit)
   {

@@ -3,7 +3,6 @@
 
 GraphEnv::GraphEnv()
 {
-
 }
 
 GraphEnv::GraphEnv(int width, int height, int bpp, char fullscreen)
@@ -13,10 +12,7 @@ GraphEnv::GraphEnv(int width, int height, int bpp, char fullscreen)
   bpp_ = bpp;
   fullscreen_ = fullscreen;
 
-  m_dummyCamera.Place(CPoint(100,0,100), CPoint(0,0,0), CPoint(0,1,0));
-  m_activeCamera = &m_dummyCamera;
-
-  m_windowTitle = "Cubophile !";
+  windowTitle_ = "Cubophile !";
 }
 
 GraphEnv::~GraphEnv()
@@ -167,10 +163,16 @@ GraphEnv::cameraFovLH(float fov, float aspect, float fNear, float fFar)
   gluPerspective(fov, aspect, fNear, fFar);
 }
 
-CCamera*
+FreeFlyCamera*
 GraphEnv::getActiveCamera()
 {
-  return m_activeCamera;
+  return activeCamera_;
+}
+
+void
+GraphEnv::setActiveCamera(FreeFlyCamera *activeCamera)
+{
+  activeCamera_ = activeCamera;
 }
 
 CMatrix
@@ -268,10 +270,4 @@ GraphEnv::loadMatrix(CMatrix m)
 	values[15] = m.e[3][3];
 
 	glLoadMatrixd(values);
-}
-
-void
-GraphEnv::setActiveCamera(CCamera *activeCamera)
-{
-  m_activeCamera = activeCamera;
 }

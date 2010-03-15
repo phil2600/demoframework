@@ -3,7 +3,7 @@
 # include "../lib.hh"
 # include "../includes/graphic.hh"
 
-FreeFlyCamera::FreeFlyCamera(const Vector3D & position)
+FreeFlyCamera::FreeFlyCamera(const CPoint & position)
 {
   _position = position;
   _phi = 0;
@@ -28,14 +28,20 @@ FreeFlyCamera::FreeFlyCamera(const Vector3D & position)
   SDL_ShowCursor(SDL_DISABLE);
 }
 
-void FreeFlyCamera::OnMouseMotion(const SDL_MouseMotionEvent & event)
+FreeFlyCamera::~FreeFlyCamera()
 {
-  _theta -= event.xrel*_sensivity;
-  _phi -= event.yrel*_sensivity;
-  VectorsFromAngles();
+  SDL_WM_GrabInput(SDL_GRAB_OFF);
+  SDL_ShowCursor(SDL_ENABLE);
 }
 
-void FreeFlyCamera::OnMouseButton(const SDL_MouseButtonEvent & event)
+void
+FreeFlyCamera::OnMouseMotion(const SDL_MouseMotionEvent & event)
+{
+  rotate(event.xrel, event.yrel);
+}
+
+void
+FreeFlyCamera::OnMouseButton(const SDL_MouseButtonEvent & event)
 {
   if ((event.button == SDL_BUTTON_WHEELUP)&&(event.type == SDL_MOUSEBUTTONDOWN)) //coup de molette vers le haut
   {
@@ -52,7 +58,8 @@ void FreeFlyCamera::OnMouseButton(const SDL_MouseButtonEvent & event)
   }
 }
 
-void FreeFlyCamera::OnKeyboard(const SDL_KeyboardEvent & event)
+void
+FreeFlyCamera::OnKeyboard(const SDL_KeyboardEvent & event)
 {
   for (KeyStates::iterator it = _keystates.begin();it != _keystates.end();
        it++)
@@ -65,80 +72,111 @@ void FreeFlyCamera::OnKeyboard(const SDL_KeyboardEvent & event)
   }
 }
 
-void FreeFlyCamera::animate(Uint32 timestep)
+void
+FreeFlyCamera::moveForward(Uint32 distance, double speed)
+{
+  _position += _forward * (speed * distance);
+}
+
+void
+FreeFlyCamera::moveBackward(Uint32 distance, double speed)
+{
+  _position -= _forward * (speed * distance);
+}
+
+void
+FreeFlyCamera::moveStrafeRight(Uint32 distance, double speed)
+{
+  _position -= _left * (speed * distance);
+}
+
+void
+FreeFlyCamera::moveStrafeLeft(Uint32 distance, double speed)
+{
+  _position += _left * (speed * distance);
+}
+
+void
+FreeFlyCamera::rotate(float x, float y)
+{
+  _theta -= x*_sensivity;
+  _phi -= y*_sensivity;
+  VectorsFromAngles();
+}
+
+void
+FreeFlyCamera::animate(Uint32 timestep)
 {
   double realspeed = (_keystates[_keyconf["boost"]])?10*_speed:_speed;
   if (_keystates[_keyconf["forward"]])
-    _position += _forward * (realspeed * timestep);
+    moveForward(timestep, realspeed);
   if (_keystates[_keyconf["backward"]])
-    _position -= _forward * (realspeed * timestep);
+    moveBackward(timestep, realspeed);
   if (_keystates[_keyconf["strafe_left"]])
-    _position += _left * (realspeed * timestep);
+    moveStrafeLeft(timestep, realspeed);
   if (_keystates[_keyconf["strafe_right"]])
-    _position -= _left * (realspeed * timestep);
+    moveStrafeRight(timestep, realspeed);
   if (_verticalMotionActive)
   {
     if (timestep > _timeBeforeStoppingVerticalMotion)
       _verticalMotionActive = false;
     else
       _timeBeforeStoppingVerticalMotion -= timestep;
-    _position += Vector3D(0,0,_verticalMotionDirection*realspeed*timestep);
+    _position += CPoint(0,0,_verticalMotionDirection*realspeed*timestep); //scroll
   }
-  _target = _position + _forward;
-
+  recalc();
 }
 
-void FreeFlyCamera::setSpeed(double speed)
+void
+FreeFlyCamera::setSpeed(double speed)
 {
   _speed = speed;
 }
 
-void FreeFlyCamera::setSensivity(double sensivity)
+void
+FreeFlyCamera::setSensivity(double sensivity)
 {
   _sensivity = sensivity;
 }
 
-void FreeFlyCamera::setPosition(const Vector3D & position)
+void
+FreeFlyCamera::setPosition(const CPoint & position)
 {
   _position = position;
-  _target = _position + _forward;
+  recalc();
 }
 
-void FreeFlyCamera::VectorsFromAngles()
+void
+FreeFlyCamera::VectorsFromAngles()
 {
-  static const Vector3D up(0,0,1);
+  static const CPoint up(0,0,1);
   if (_phi > 89)
     _phi = 89;
   else if (_phi < -89)
     _phi = -89;
   double r_temp = cos(_phi*M_PI/180);
-  _forward.Z = sin(_phi*M_PI/180);
-  _forward.X = r_temp*cos(_theta*M_PI/180);
-  _forward.Y = r_temp*sin(_theta*M_PI/180);
+  _forward.z = sin(_phi*M_PI/180);
+  _forward.x = r_temp*cos(_theta*M_PI/180);
+  _forward.y = r_temp*sin(_theta*M_PI/180);
 
   _left = up.crossProduct(_forward);
   _left.normalize();
 
-  _target = _position + _forward;
+  recalc();
 }
 
-void FreeFlyCamera::look()
+void
+FreeFlyCamera::look()
 {
-  gluLookAt(_position.X,_position.Y,_position.Z,
-	    _target.X,_target.Y,_target.Z,
+  gluLookAt(_position.x,_position.y,_position.z,
+	    _target.x,_target.y,_target.z,
 	    0,0,1);
 }
 
-void FreeFlyCamera::look(CPoint camPosition, CPoint camTarget, CPoint camUp)
+void
+FreeFlyCamera::recalc()
 {
-  gluLookAt(camPosition.x,camPosition.y,camPosition.z,camTarget.x,camTarget.y,camTarget.z,camUp.x,camUp.y,camUp.z);
+  _target = _position + _forward;
 }
-
-FreeFlyCamera::~FreeFlyCamera()
-{
-  SDL_WM_GrabInput(SDL_GRAB_OFF);
-  SDL_ShowCursor(SDL_ENABLE);
-}
-
 
 #endif /* FREE_LOOK */

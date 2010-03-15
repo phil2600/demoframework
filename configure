@@ -22,14 +22,11 @@ src/sys/random/random.cc \
 src/sys/tools/tools.cc \
 src/sys/physics/physics.cc \
 src/sys/graphic/shapes.cc \
-src/sys/graphic/vector3d.cc \
 src/sys/graphic/fly_cam.cc \
 src/sys/graphic/sdlutils.cc \
 src/sys/graphic/GraphEnv.cc \
 src/sys/graphic/Mesh.cc \
-src/sys/maths/Algebre.cc \
-src/sys/graphic/Camera.cc
-
+src/sys/maths/Algebre.cc
 
 
   CC	= g++
@@ -54,7 +51,7 @@ src/sys/graphic/Camera.cc
   TARBALL_NAME = demophile.tar.gz
   DATE         = `date +%d_%m_%y_%H%M`
 
-  TO_COMPRESS  = Makefile configure
+  TO_COMPRESS  = AUTHORS configure Makefile README stub TODO
 
 EOF
 

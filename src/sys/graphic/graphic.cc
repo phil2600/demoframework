@@ -1,31 +1,5 @@
 #include "../lib.hh"
 
-void draw_repere(unsigned int scale)
-{
-  //  glPushAttrib(GL_ALL_ATTRIB_BITS);
-  glPushMatrix();
-  glDisable(GL_LIGHTING);
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
-  //glEnable(GL_LINE_SMOOTH);
-  glLineWidth(2);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-  glScalef(scale,scale,scale);
-  glBegin(GL_LINES);
-  glColor3ub(255,0,0);
-  glVertex3i(0,0,0);
-  glVertex3i(1,0,0);
-  glColor3ub(0,255,0);
-  glVertex3i(0,0,0);
-  glVertex3i(0,1,0);
-  glColor3ub(0,0,255);
-  glVertex3i(0,0,0);
-  glVertex3i(0,0,1);
-  glEnd();
-  glPopMatrix();
-  //  glPopAttrib();
-}
-
 
 // GLubyte rarray[256*256];
 
@@ -78,15 +52,13 @@ void draw_repere(unsigned int scale)
 //   glDisable (GL_BLEND);
 // }
 
+
+// funky !
 void drawTVNoise(void)
 {
-  /* esta es muy parecida a las scanlines, pero aqui lo que hago es dibujar
-     'quads' para hacer ruido de television ... */
-
   float ancho, alto,anchocuad,altocuad,brillo;
   float i,j;
 
-  // Preparo mis datillos
   ancho = WIDTH;
   alto = HEIGHT;
   float halfalto = ancho/2, halfancho = ancho/2;
@@ -116,6 +88,5 @@ void drawTVNoise(void)
   }
   glEnd();
   glDisable(GL_BLEND);
-  glPopMatrix(); // Restauro lo que hubiera del modelo ...
+  glPopMatrix();
 }
-

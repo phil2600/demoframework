@@ -1,7 +1,6 @@
 include Makefile.rules
 
 OBJ = $(SRC:.cc=.o)
-#src/sys/graphic/import.o
 
 all: $(EXEC)
 
@@ -14,9 +13,6 @@ $(EXEC): $(OBJ)
 	@strip -s -R .comment -R .gnu.version $(EXEC)
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
 	@cat **/**.{hh,cc,c,asm}|wc
-
-# src/sys/graphic/import.o: src/sys/graphic/import.asm src/sys/includes/graphic.hh
-# 	nasm -f elf $<
 
 %.o : %.cc
 	$(CC) -o $@ -c $< $(CFLAGS) $(PERSO_FLAGS)
@@ -33,6 +29,7 @@ clean:
 
 mrproper: clean
 	$(RM) $(EXEC)
+	$(RM) $(FINAL)
 
 dist: mrproper
 	$(COMP) $(TARBALL_NAME) $(SRC) src/sys/**/*.hh $(TO_COMPRESS)
