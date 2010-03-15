@@ -163,6 +163,7 @@ GraphEnv::cameraFovLH(float fov, float aspect, float fNear, float fFar)
   gluPerspective(fov, aspect, fNear, fFar);
 }
 
+#ifdef FREE_LOOK
 FreeFlyCamera*
 GraphEnv::getActiveCamera()
 {
@@ -174,6 +175,7 @@ GraphEnv::setActiveCamera(FreeFlyCamera *activeCamera)
 {
   activeCamera_ = activeCamera;
 }
+#endif
 
 CMatrix
 GraphEnv::getModelViewMatrix()

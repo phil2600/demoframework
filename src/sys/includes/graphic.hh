@@ -8,6 +8,7 @@
 # include "Algebre.hh"
 # include "Camera.hh"
 
+#ifdef FREE_LOOK
 /* FlyCam */
 class FreeFlyCamera
 {
@@ -60,7 +61,7 @@ protected:
   void VectorsFromAngles();
   void recalc();
 };
-
+#endif
 
 /* GraphicalEnvironment */
 class GraphEnv
@@ -90,8 +91,11 @@ public:
   void     loadMatrix(CMatrix m);
   CMatrix  getProjectionMatrix();
   CMatrix  getModelViewMatrix();
+
+#ifdef FREE_LOOK
   FreeFlyCamera* getActiveCamera();
   void     setActiveCamera(FreeFlyCamera *activeCamera);
+#endif
 private:
   int  height_;
   int  width_;
@@ -102,21 +106,17 @@ private:
   // NOT used !
   std::string windowTitle_;
 
+#ifdef FREE_LOOK
   FreeFlyCamera dummyCamera_;
   FreeFlyCamera *activeCamera_;
+#endif
 };
 
 
 int	init_GL(GraphEnv *graphical_env);
-
 void	Reshape(int w, int h);
-
 void	draw_repere(unsigned int scale = 1);
-
 int	takeScreenshot(const char *filename);
-
 void	drawTVNoise(void);
-
-
 
 #endif /* !GRAPHIC_HH_ */

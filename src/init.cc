@@ -2,8 +2,19 @@
 
 // Debugging STUFF
 float rot1  = 0.0f;
+float rot_mov = 0.0f;
+
+float rescaler = 0.0f;
+
+float resize_x = 1.0f;
+float resize_y = 1.0f;
+float resize_z = 1.0f;
+
+float key_up_down, key_left_right, keyzoom, lr, ud = 0;
+
 
 /* FIXME  -  A Nettoyer */
+
 GraphEnv graphical_env(WIDTH, HEIGHT, BPP, FULLSCREEN);
 
 #ifdef FREE_LOOK
