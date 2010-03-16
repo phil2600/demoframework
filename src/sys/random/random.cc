@@ -1,4 +1,4 @@
-#include "../lib.hh"
+#include "../includes/random.hh"
 
 /* =====================
 ** ==== RandomFloat ====

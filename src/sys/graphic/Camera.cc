@@ -1,5 +1,4 @@
-# include "../lib.hh"
-# include "../includes/graphic.hh"
+# include "../includes/Camera.hh"
 
 Camera::Camera(const CPoint & position)
 {

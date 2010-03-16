@@ -25,8 +25,8 @@ Particle::~Particle()
 void
 Particle::display()
 {
-    glColor3f(r_, g_, b_);
-    glVertex3f(posX_, posY_, posZ_);
+  glColor3f(r_, g_, b_);
+  glVertex3f(posX_, posY_, posZ_);
 }
 
 /* ==================================== */
@@ -49,6 +49,19 @@ ParticleList::~ParticleList()
 }
 
 void
+ParticleList::update_special()
+{
+  static float color_rot = 0;
+  static float rot_mov = 0;
+
+  color_rot += 0.05;
+  rot_mov += 0.5;
+
+  update_particles_cube(color_rot, rot_mov);
+}
+
+
+void
 ParticleList::update_particles_cube(float color_rot, float rot_mov)
 {
   int		id = 0;
@@ -65,9 +78,9 @@ ParticleList::update_particles_cube(float color_rot, float rot_mov)
     x = id / 100;
     y = (id / 10) % 10;
     z = id % 10;
-//     x = id / (MAX_PARTICLES / 10);
-//     y = (id / (MAX_PARTICLES / 100)) % (MAX_PARTICLES / 100);
-//     z = id % (MAX_PARTICLES / 100);
+    //     x = id / (MAX_PARTICLES / 10);
+    //     y = (id / (MAX_PARTICLES / 100)) % (MAX_PARTICLES / 100);
+    //     z = id % (MAX_PARTICLES / 100);
 
 
     i->second->position(x, y, z);

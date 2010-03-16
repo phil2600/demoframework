@@ -1,4 +1,4 @@
-#include "../lib.hh"
+#include "../includes/graphic.hh"
 
 
 // GLubyte rarray[256*256];

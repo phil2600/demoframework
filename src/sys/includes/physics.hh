@@ -1,7 +1,13 @@
 #ifndef PHYSICS_HH_
 # define PHYSICS_HH_
 
-# include "../lib.hh"
+# include <map>
+# include "maths.hh"
+
+# include "SDL.h"
+# include "SDL_opengl.h"
+
+
 
 class Shape
 {
@@ -13,7 +19,8 @@ public:
   void rotation(float x, float y, float z);
   void move(float x, float y, float z);
   void translate(float x, float y, float z);
-  void update();
+  virtual void update();
+  virtual void update_special();
 
   virtual void display() = 0;
 
@@ -52,6 +59,7 @@ public:
   ParticleList(unsigned int partic_nb);
   ~ParticleList();
 
+  void update_special();
   void update_particles_cube(float rot_angle, float rot_mov);
 
   void display();

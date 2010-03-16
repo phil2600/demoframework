@@ -1,7 +1,10 @@
 #ifndef ALGEBRE_HH_
 # define ALGEBRE_HH_
 
-#include "../lib.hh"
+# include <stdio.h>
+# include <cmath>
+# include <cstdlib>
+# include <iostream>
 
 #define EPSILON  	1e-8
 #define ZERO  	 	EPSILON

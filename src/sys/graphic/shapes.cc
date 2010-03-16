@@ -49,3 +49,8 @@ Shape::update()
 
   glTranslatef(posX_, posY_, posZ_);
 }
+
+void
+Shape::update_special()
+{
+}

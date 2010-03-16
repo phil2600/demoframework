@@ -1,4 +1,10 @@
-#include "sys/lib.hh"
+#include "sys/includes/defines.hh"
+#include "sys/includes/Algebre.hh"
+#include "sys/includes/GraphEnv.hh"
+#include "sys/includes/Camera.hh"
+#include "sys/includes/physics.hh"
+#include "sys/includes/graphic.hh"
+#include "sys/includes/EventFactory.hh"
 
 // Debugging STUFF
 float rot1  = 0.0f;
@@ -9,6 +15,9 @@ GraphEnv graphical_env(WIDTH, HEIGHT, BPP, FULLSCREEN);
 
 ParticleList particle_cube (MAX_PARTICLES);
 ParticleList particle_cube2 (MAX_PARTICLES);
+
+Event *event_cube;
+
 /* FIXME */
 
 void	display_process();
@@ -20,6 +29,11 @@ void	draw_particles(void);
 
 int	main(int argc,char** argv)
 {
+  EventFactory factory;
+
+  event_cube = factory.createInstance("cube");
+  event_cube->set_shape(new ParticleList (MAX_PARTICLES));
+
   Camera * camera;
   graphical_env.init_GL();
 
@@ -39,6 +53,8 @@ void	update_shapes()
   color_rot += 0.02;
   moves += 0.2;
 
+  event_cube->get_shape()->update_special();
+
   particle_cube.update_particles_cube(color_rot, moves);
   particle_cube2.update_particles_cube(-color_rot, -moves);
 }
@@ -54,6 +70,20 @@ void	draw_shapes(void)
     gluSphere(params,0.75,20,20);
   glPopMatrix();
 
+
+  /* The EventCube */
+  glPushMatrix();
+   event_cube->get_shape()->rotation(0, 0, 0);
+   event_cube->get_shape()->rotation_cst(20, 0, 0);
+   event_cube->get_shape()->position(1,-15,0);
+   event_cube->update();
+   glBegin(GL_POINTS);
+    event_cube->display(0.0);
+   glEnd();
+  glPopMatrix();
+
+
+  /* Juste a surface */
   glPushMatrix();
     glBegin(GL_QUADS);
   glColor3f(0.1, 0.3, 0.1);
@@ -69,30 +99,29 @@ void	draw_shapes(void)
   /* Draw Particle Cube */
   glPushMatrix();
 
-  //  rot1 += 0.5f;
-  particle_cube.rotation(rot1, rot1, rot1);
-  particle_cube.rotation_cst(0, 0, 0);
-  particle_cube.position(0,0,0);
-  particle_cube.update();
+   particle_cube.rotation(rot1, rot1, rot1);
+   particle_cube.rotation_cst(0, 0, 0);
+   particle_cube.position(0,0,0);
+   particle_cube.update();
 
-  glBegin(GL_POINTS);
-  particle_cube.display();
-  glEnd();
+   glBegin(GL_POINTS);
+    particle_cube.display();
+   glEnd();
 
   glPopMatrix();
 
   /* Draw Particle Cube 2 */
   glPushMatrix();
 
-  rot1 -= 1.0f;
-  particle_cube2.rotation(-rot1, -rot1, -rot1);
-  particle_cube2.rotation_cst(0, 0, 0);
-  particle_cube2.position(0,13,0);
-  particle_cube2.update();
+   rot1 -= 1.0f;
+   particle_cube2.rotation(-rot1, -rot1, -rot1);
+   particle_cube2.rotation_cst(0, 0, 0);
+   particle_cube2.position(0,13,0);
+   particle_cube2.update();
 
-  glBegin(GL_POINTS);
-  particle_cube2.display();
-  glEnd();
+   glBegin(GL_POINTS);
+    particle_cube2.display();
+   glEnd();
 
   glPopMatrix();
 }

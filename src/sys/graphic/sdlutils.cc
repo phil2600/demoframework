@@ -1,4 +1,3 @@
-# include "../lib.hh"
 # include "../includes/graphic.hh"
 
 SDL_Surface * flipSurface(SDL_Surface * surface)

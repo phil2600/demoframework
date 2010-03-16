@@ -1,4 +1,8 @@
  * Faire un diagramme UML
+ * Il y a un probleme de modelisation au niveau des updates des shapes.
+   _ Il faut 2 updates : 1)Pour les mouvements
+                         2)Pour OpenGL
+     Il serait donc bon de revoir la methode 'update_special'...
 
  * Wrapper malloc
  * Faire fonctionner BOLD avec le programme (nécessite de compiler avec -m64)
@@ -21,7 +25,12 @@
 
  * Do factory patterns for :
    _Shapes
-   _Events
+   _Events => DONE (Factory)
    _GraphicalTransformations
 
  * RM draw_repere
+
+ * RM map & list (ParticleList) => take lot of memory
+
+ * Citer les sources quelque part...
+ * Installer doxygen

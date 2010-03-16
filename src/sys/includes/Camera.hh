@@ -1,7 +1,11 @@
 #ifndef CAMERA_HH_
 # define CAMERA_HH_
 
-#include "../lib.hh"
+# include "SDL.h"
+# include "SDL_opengl.h"
+
+# include "Algebre.hh"
+# include "maths.hh"
 
 struct key
 {

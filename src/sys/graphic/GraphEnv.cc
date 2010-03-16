@@ -1,4 +1,4 @@
-#include "../lib.hh"
+# include "../includes/GraphEnv.hh"
 
 GraphEnv::GraphEnv(int width, int height, int bpp, char fullscreen)
 {

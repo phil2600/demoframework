@@ -23,7 +23,10 @@ src/sys/graphic/sdlutils.cc \
 src/sys/graphic/GraphEnv.cc \
 src/sys/maths/Algebre.cc \
 src/sys/graphic/Camera.cc \
-src/sys/graphic/GraphEnv.cc
+src/sys/graphic/GraphEnv.cc \
+src/sys/events/Event.cc \
+src/sys/events/EventCube.cc \
+src/sys/events/EventFactory.cc
 
 
   CC	= g++

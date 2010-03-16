@@ -1,13 +1,8 @@
 #ifndef GRAPHIC_HH_
 # define GRAPHIC_HH_
 
-# include "SDL.h"
-# include "SDL_opengl.h"
-
-# include "../lib.hh"
-# include "Algebre.hh"
-# include "Camera.hh"
 # include "GraphEnv.hh"
+# include "defines.hh"
 
 
 int	init_GL(GraphEnv *graphical_env);

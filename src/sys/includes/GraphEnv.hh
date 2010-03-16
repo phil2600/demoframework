@@ -11,7 +11,8 @@
 #ifndef GRAPHENV_HH_
 # define GRAPHENV_HH_
 
-# include "../lib.hh"
+# include "Algebre.hh"
+# include "Camera.hh"
 
 class GraphEnv
 {
