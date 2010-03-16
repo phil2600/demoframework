@@ -28,6 +28,7 @@ clean:
 	find . -iname "*.rules" -delete
 
 mrproper: clean
+	$(MAKE) -C doc clean
 	$(RM) $(EXEC)
 	$(RM) $(FINAL)
 
@@ -50,3 +51,5 @@ run: final
 infos:
 	cat **/**.{hh,cc,c,asm} | wc | awk '{print "Lines:", $1, "\nChars:", $3}'
 
+doc::
+	$(MAKE) -C doc doc
