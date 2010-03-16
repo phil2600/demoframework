@@ -12,7 +12,7 @@ $(EXEC): $(OBJ)
 	@echo -n "[+] After strip: "
 	@strip -s -R .comment -R .gnu.version $(EXEC)
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
-	@cat **/**.{hh,cc,c,asm}|wc
+	@zsh -c 'cat **/*.{hh,cc,asm}' | wc
 
 %.o : %.cc
 	$(CC) -o $@ -c $< $(CFLAGS) $(PERSO_FLAGS)
