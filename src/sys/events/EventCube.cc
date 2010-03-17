@@ -16,7 +16,6 @@ EventCube::init()
 void
 EventCube::display(float time)
 {
-  //  printf("In EventCube::display(float time)\n");
   shape_->display();
 }
 

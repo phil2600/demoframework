@@ -3,44 +3,10 @@
 
 # include <map>
 # include "maths.hh"
+# include "Shape.hh"
 
 # include "SDL.h"
 # include "SDL_opengl.h"
-
-
-
-class Shape
-{
-public:
-  virtual ~Shape() {};
-  void position(float x, float y, float z);
-  void colorate(float r, float g, float b);
-  void rotation_cst(float x, float y, float z);
-  void rotation(float x, float y, float z);
-  void move(float x, float y, float z);
-  void translate(float x, float y, float z);
-  virtual void update();
-  virtual void update_special();
-
-  virtual void display() = 0;
-
-protected:
-  int   id_;
-  float	posX_;
-  float posY_;
-  float posZ_;
-  float movX_;
-  float movY_;
-  float movZ_;
-  float rotX_;
-  float rotY_;
-  float rotZ_;
-  float r_;
-  float g_;
-  float b_;
-  float life_;
-};
-
 
 class Particle : public Shape
 {
