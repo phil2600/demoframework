@@ -5,6 +5,7 @@
 #include "sys/includes/physics.hh"
 #include "sys/includes/graphic.hh"
 #include "sys/includes/EventFactory.hh"
+#include "sys/includes/ShapeFactory.hh"
 
 // Debugging STUFF
 float rot1  = 0.0f;
@@ -17,6 +18,8 @@ ParticleList particle_cube (MAX_PARTICLES);
 ParticleList particle_cube2 (MAX_PARTICLES);
 
 Event *event_cube;
+Shape *shape_grid;
+Shape *shape_ball;
 
 /* FIXME */
 
@@ -29,15 +32,19 @@ void	draw_particles(void);
 
 int	main(int argc,char** argv)
 {
-  EventFactory factory;
-
-  event_cube = factory.createInstance("cube");
-  event_cube->set_shape(new ParticleList (MAX_PARTICLES));
+  EventFactory event_factory;
+  ShapeFactory shape_factory;
 
   Camera * camera;
   graphical_env.init_GL();
+  graphical_env.setActiveCamera(new Camera(CPoint(0, 0, 20)));
 
-  graphical_env.setActiveCamera(new Camera(CPoint(1, 1, 5)));
+  event_cube = event_factory.createInstance("cube");
+  event_cube->set_shape(new ParticleList (MAX_PARTICLES));
+
+  shape_grid = shape_factory.createInstance("grid");
+  shape_ball = shape_factory.createInstance("ball");
+
 
   display_process();
 
@@ -48,6 +55,9 @@ void	update_shapes()
 {
   static float color_rot = 0.0f;
   static float moves = 0.0f;
+
+//   graphical_env.getActiveCamera()->rotate(2, 0);
+//   graphical_env.getActiveCamera()->moveStrafeLeft(2, 1);
 
   /* Update Particle Cubes */
   color_rot += 0.02;
@@ -61,6 +71,7 @@ void	update_shapes()
 
 void	draw_shapes(void)
 {
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   graphical_env.drawAxis3D();
 
   /* Draw Sphere */
@@ -82,8 +93,7 @@ void	draw_shapes(void)
    glEnd();
   glPopMatrix();
 
-
-  /* Juste a surface */
+  /* Just a surface */
   glPushMatrix();
     glBegin(GL_QUADS);
   glColor3f(0.1, 0.3, 0.1);
@@ -124,6 +134,13 @@ void	draw_shapes(void)
    glEnd();
 
   glPopMatrix();
+
+  /* Draw Grid */
+   shape_grid->display();
+
+  /* Draw Ball */
+  shape_ball->display();
+
 }
 
 void	display()

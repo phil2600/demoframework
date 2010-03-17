@@ -5,15 +5,14 @@
      Il serait donc bon de revoir la methode 'update_special'...
 
  * Wrapper malloc
- * Faire fonctionner BOLD avec le programme (nécessite de compiler avec -m64)
- * Trier les fichiers mathematiques
 
- * Se servir de la classe Camera presente dans ppg_06_refigos afin de controler la camera...
+ * Faire fonctionner BOLD avec le programme (nécessite de compiler avec -m64)
+
+ * Trier les fichiers mathematiques
 
  * Gestion des evenements dans le temps
    _Selon un Script
    _Selon la Musique
-
  * Scripter les actions :
    _Langage compilé ou interprété (python, xml...)
    _S'en servir pour la conf du programme (conf OpenGL)
@@ -24,13 +23,17 @@
    _Gerer une timeline grace au script
 
  * Do factory patterns for :
-   _Shapes
-   _Events => DONE (Factory)
+   _Shapes => DONE
+   _Events => DONE
    _GraphicalTransformations
-
- * RM draw_repere
 
  * RM map & list (ParticleList) => take lot of memory
 
  * Citer les sources quelque part...
  * Installer doxygen
+
+ * Faire de la ParticleList une classe bcp plus générique
+ * Faire des cubes de points une shape à part (dépendant ou pas des ParticleList)
+   _Faire de la récursion pour subdiviser le travail -> Cf.ShapeBall
+
+ * Récup tutos (addison.pdf, "OpenGL Programming Guide").
