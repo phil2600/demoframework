@@ -17,13 +17,6 @@
 #define L_MAX 7
 
 #define IMAGE_FILE "data/heightmap.bmp"
-//#define IMAGE_FILE "resulat.bmp"
-
-/* Point 3D */
-typedef struct sPoint
-{
-  double x,y,z;
-} SPoint;
 
 typedef struct sParam
 {

@@ -10,7 +10,7 @@ $(EXEC): $(OBJ)
 	@echo -n "[!] Before strip: "
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
 	@echo -n "[!] After strip: "
-#	@strip -s -R .comment -R .gnu.version $(EXEC)
+	@strip -s -R .comment -R .gnu.version $(EXEC)
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
 	@zsh -c 'cat **/*.{hh,cc,asm}' | wc
 

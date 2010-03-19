@@ -257,6 +257,14 @@ CPoint CPoint::crossProduct(const CPoint & v)const
   return t;
 }
 
+float
+CPoint::ScalarProduct (const CPoint & v) const
+{
+  return x * v.x				\
+    +    y * v.y				\
+    +    z * v.z;
+}
+
 double CPoint::length()const
 {
   return sqrt( x*x + y*y + z*z);

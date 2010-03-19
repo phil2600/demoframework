@@ -4,6 +4,7 @@
 # include "../includes/graphic.hh"
 # include "../includes/Algebre.hh"
 
+
 struct calque
 {
   int **v;

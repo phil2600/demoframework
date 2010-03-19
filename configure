@@ -40,15 +40,15 @@ src/sys/graphic/Terrain.cc
   RM	= rm -f
 
 
-  CFLAGS        = `sdl-config --cflags` -O3 -g
-#  CFLAGS       += -fomit-frame-pointer -fno-rtti -fno-stack-limit
-#  CFLAGS       += -fno-math-errno -ffast-math
-#  CFLAGS       += -fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
+  CFLAGS        = `sdl-config --cflags` -O3
+  CFLAGS       += -fomit-frame-pointer -fno-rtti -fno-stack-limit
+  CFLAGS       += -fno-math-errno -ffast-math
+  CFLAGS       += -fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
 
   LDLIBS        = `sdl-config --libs`
   FUCKING_FLAGS	=
 #-Wall -Werror -Wall -W
-  LDFLAGS       = -lm -lGL -lGLU -lSDL_image -g
+  LDFLAGS       = -lm -lGL -lGLU -lSDL_image
   PERSO_FLAGS   = -DDEBUG
 #-DFAST_MATHS
 

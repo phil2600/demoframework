@@ -11,49 +11,34 @@ SParam param = {0,1,1,0,10.0,1,-65.0,0.0,-6.0,1.0,0,3.0,
 		L_AUCUN,-1,0,-0.02,0.2,1.0,0.01,47.0,
 		4,2,.2, NULL};
 
-/* Vecteur 3D */
-typedef struct sVecteur
-{
-	double x,y,z;
-}SVecteur;
-
-/* Produit vectoriel de vecteurs 3D */
-void Vecteur_pVect(SVecteur *V1, SVecteur *V2, SVecteur *V3)
-{
-	V3->x=V1->y*V2->z-V1->z*V2->y;
-	V3->y=V1->z*V2->x-V1->x*V2->z;
-	V3->z=V1->x*V2->y-V1->y*V2->x;
-}
-
-
 
 struct calque* init_calque(int t, float p)
 {
   struct calque *s = (struct calque*)malloc(sizeof(struct calque));
-    if(!s){
-        printf("erreur d'alloc");
-        return NULL;
-    }
+  if(!s){
+    printf("erreur d'alloc");
+    return NULL;
+  }
 
-    s->v = (int **)malloc(t*sizeof(int*));
-    if(!s->v){
-        printf("erreur d'alloc");
-        return NULL;
+  s->v = (int **)malloc(t*sizeof(int*));
+  if(!s->v){
+    printf("erreur d'alloc");
+    return NULL;
+  }
+  int i,j;
+  for (i=0; i<t ; i++){
+    s->v[i]= (int *)malloc(t*sizeof(int));
+    if(!s->v[i]) {
+      printf("erreur d'alloc");
+      return NULL;
     }
-    int i,j;
-    for (i=0; i<t ; i++){
-        s->v[i]= (int *)malloc(t*sizeof(int));
-        if(!s->v[i]) {
-            printf("erreur d'alloc");
-            return NULL;
-        }
-        for (j=0; j<t; j++)
-            s->v[i][j]=0;
-    }
-    s->taille = t;
-    s->persistance = p;
+    for (j=0; j<t; j++)
+      s->v[i][j]=0;
+  }
+  s->taille = t;
+  s->persistance = p;
 
-    return s;
+  return s;
 }
 
 
@@ -61,88 +46,68 @@ struct calque* init_calque(int t, float p)
 void GenererCalquePerlin(int frequence, int octaves, float persistance , struct calque *r){
   struct calque *c = init_calque(NB_PTS_CALQUE, 1);
 
-    int taille = c->taille;
-    int i,j,n,f_courante;
-    int a;
-    float pas, sum_persistances;
+  int taille = c->taille;
+  int i,j,n,f_courante;
+  int a;
+  float pas, sum_persistances;
 
-    pas = (float)(taille)/frequence;
-    float persistance_courante = persistance;
+  pas = (float)(taille)/frequence;
+  float persistance_courante = persistance;
 
-    // calques de travail
-    struct calque **mes_calques = (struct calque**)malloc(octaves*sizeof(struct calque*));
-    for (i=0; i<octaves; i++){
-      mes_calques[i] = init_calque(NB_PTS_CALQUE, persistance_courante);
-        persistance_courante*=persistance;
+  // calques de travail
+  struct calque **mes_calques = (struct calque**)malloc(octaves*sizeof(struct calque*));
+  for (i=0; i<octaves; i++){
+    mes_calques[i] = init_calque(NB_PTS_CALQUE, persistance_courante);
+    persistance_courante*=persistance;
+  }
+
+  f_courante = frequence;
+
+  // remplissage de calque
+  for (n=0; n<octaves; n++){
+    for(i=0; i<taille; i++)
+      for(j=0; j<taille; j++) {
+	a = valeur_interpolee(i, j, f_courante, r);
+	mes_calques[n]->v[i][j]=a;
+      }
+    f_courante*=frequence;
+  }
+
+  sum_persistances = 0;
+  for (i=0; i<octaves; i++)
+    sum_persistances+=mes_calques[i]->persistance;
+
+  // ajout des calques successifs
+  for (i=0; i<taille; i++)
+    for (j=0; j<taille; j++){
+      for (n=0; n<octaves; n++)
+	c->v[i][j]+=mes_calques[n]->v[i][j]*mes_calques[n]->persistance;
+
+      // normalisation
+      c->v[i][j] =  c->v[i][j] / sum_persistances;
     }
 
-    f_courante = frequence;
+  SDL_Surface *s = SDL_CreateRGBSurface(SDL_SWSURFACE,taille, taille, 32,0, 0, 0, 0);
+  if (!s)
+    printf("erreur SDL sur SDL_CreateRGBSurface");
 
-    // remplissage de calque
-    for (n=0; n<octaves; n++){
-        for(i=0; i<taille; i++)
-            for(j=0; j<taille; j++) {
-                a = valeur_interpolee(i, j, f_courante, r);
-                mes_calques[n]->v[i][j]=a;
-            }
-        f_courante*=frequence;
+  Uint32 u;
+  SDL_PixelFormat *fmt = s->format;
+  for (i=0; i< taille; i++)
+    for (j=0; j< taille; j++){
+      u = SDL_MapRGB  (fmt, (char)c->v[i][j], (char)c->v[i][j], (char)c->v[i][j]);
+      colorerPixel(s, i, j, u);
     }
 
-    sum_persistances = 0;
-    for (i=0; i<octaves; i++)
-        sum_persistances+=mes_calques[i]->persistance;
+  // libération mémoire
+  for (i=0; i<octaves; i++)
+    free_calque(mes_calques[i]);
+  free(mes_calques);
+  free_calque(c);
 
-    // ajout des calques successifs
-    for (i=0; i<taille; i++)
-        for (j=0; j<taille; j++){
-            for (n=0; n<octaves; n++)
-                c->v[i][j]+=mes_calques[n]->v[i][j]*mes_calques[n]->persistance;
-
-            // normalisation
-            c->v[i][j] =  c->v[i][j] / sum_persistances;
-        }
-
-    SDL_Surface *s = SDL_CreateRGBSurface(SDL_SWSURFACE,taille, taille, 32,0, 0, 0, 0);
-    if (!s)
-        printf("erreur SDL sur SDL_CreateRGBSurface");
-
-    Uint32 u;
-    SDL_PixelFormat *fmt = s->format;
-    for (i=0; i< taille; i++)
-        for (j=0; j< taille; j++){
-            u = SDL_MapRGB  (fmt, (char)c->v[i][j], (char)c->v[i][j], (char)c->v[i][j]);
-            colorerPixel(s, i, j, u);
-        }
-
-    // libération mémoire
-    for (i=0; i<octaves; i++)
-        free_calque(mes_calques[i]);
-    free(mes_calques);
-    free_calque(c);
-
-    SDL_SaveBMP(s, IMAGE_FILE);
-    SDL_FreeSurface(s);
+  SDL_SaveBMP(s, IMAGE_FILE);
+  SDL_FreeSurface(s);
 }
-
-/* Produit scalaire */
-double Vecteur_ProdScal(SVecteur *v1, SVecteur *v2)
-{
-	return v1->x*v2->x + v1->y*v2->y + v1->z*v2->z;
-}
-
-/* Normalisation d'un vecteur */
-void Vecteur_Normalise(SVecteur *v)
-{
-	/* La norme est la racine carré du produit scalaire du vecteur sur lui-même */
-	double fact = Vecteur_ProdScal(v,v);
-	fact = sqrt(fact);
-
-	/* On divise le vecteur par sa norme */
-	v->x /= fact;
-	v->y /= fact;
-	v->z /= fact;
-}
-
 
 /* Dessiner en 3D filaire */
 void Graphique_Dessin3D()
@@ -259,7 +224,7 @@ void Graphique_Dessin3DFull()
 
 unsigned char Terrain_GetPixelColor(SDL_Surface *image, int i, int j,int k)
 {
-	return ((unsigned char*)image->pixels)[i*image->w*3+j*3+k];
+  return ((unsigned char*)image->pixels)[i*image->w*3+j*3+k];
 }
 
 /*
@@ -269,22 +234,22 @@ unsigned char Terrain_GetPixelColor(SDL_Surface *image, int i, int j,int k)
  */
 double Terrain_GetHauteur(SDL_Surface *image, int i, int j, int maxi, int maxj)
 {
-	double di,dj;
-	double res;
-	di = i;
-	dj = j;
+  double di,dj;
+  double res;
+  di = i;
+  dj = j;
 
-	di /= maxi;
-	dj /= maxj;
+  di /= maxi;
+  dj /= maxj;
 
-	di *= image->h;
-	dj *= image->w;
+  di *= image->h;
+  dj *= image->w;
 
-	i = di;
-	j = dj;
+  i = di;
+  j = dj;
 
-	res = (Terrain_GetPixelColor(image,i,j,0)/256.0)*param.hautmax;
-	return res;
+  res = (Terrain_GetPixelColor(image,i,j,0)/256.0)*param.hautmax;
+  return res;
 }
 
 /* Cette fonction remplit le pourcentage que ce pixel doit avoir dependant de l'hauteur associe
@@ -296,52 +261,52 @@ double Terrain_GetHauteur(SDL_Surface *image, int i, int j, int maxi, int maxj)
  */
 void Terrain_RemplitPerc(float *perc, unsigned char haut)
 {
-	/* On utilise la fonction rand pour mettre de l'aleatoire */
-	int add = haut + (rand()%30)-15;
+  /* On utilise la fonction rand pour mettre de l'aleatoire */
+  int add = haut + (rand()%30)-15;
 
-	if(add<0)
-		add = 0;
+  if(add<0)
+    add = 0;
 
-	if(add>255)
-		add = 255;
+  if(add>255)
+    add = 255;
 
-	haut = add;
+  haut = add;
 
-	/* Que de la prairie */
-	if(haut<60)
-		{
-		perc[0] = 1.0f;
-		perc[1] = 0.0f;
-		perc[2] = 0.0f;
-	}
-	/* Melange entre prairie et roche */
-	else if(haut<130)
-		{
-		perc[0] = 1.0f - (haut-60.0f)/70.0f;
-		perc[1] = (haut-60.0f)/70.0f;
-		perc[2] = 0.0f;
-		}
-	/* Que de la roche */
-	else if(haut<180)
-		{
-		perc[0] = 0.0f;
-		perc[1] = 1.0f;
-		perc[2] = 0.0f;
-		}
-	/* Melange entre roche et la neige */
-	else if(haut<220)
-		{
-		perc[0] = 0.0f;
-		perc[1] = 1.0f - (haut-180.0f)/40.0f;
-		perc[2] = (haut-180.0f)/40.0f;
-		}
-	/* Que de la neige */
-	else
-		{
-		perc[0] = 0.0f;
-		perc[1] = 0.0f;
-		perc[2] = 1.0f;
-		}
+  /* Que de la prairie */
+  if(haut<60)
+  {
+    perc[0] = 1.0f;
+    perc[1] = 0.0f;
+    perc[2] = 0.0f;
+  }
+  /* Melange entre prairie et roche */
+  else if(haut<130)
+  {
+    perc[0] = 1.0f - (haut-60.0f)/70.0f;
+    perc[1] = (haut-60.0f)/70.0f;
+    perc[2] = 0.0f;
+  }
+  /* Que de la roche */
+  else if(haut<180)
+  {
+    perc[0] = 0.0f;
+    perc[1] = 1.0f;
+    perc[2] = 0.0f;
+  }
+  /* Melange entre roche et la neige */
+  else if(haut<220)
+  {
+    perc[0] = 0.0f;
+    perc[1] = 1.0f - (haut-180.0f)/40.0f;
+    perc[2] = (haut-180.0f)/40.0f;
+  }
+  /* Que de la neige */
+  else
+  {
+    perc[0] = 0.0f;
+    perc[1] = 0.0f;
+    perc[2] = 1.0f;
+  }
 }
 
 /*
@@ -350,77 +315,77 @@ void Terrain_RemplitPerc(float *perc, unsigned char haut)
  */
 int Terrain_AppliquePatch(double **lightmap, int maxi, int maxj, int taille_patch)
 {
-        int i,j,k,l,cnt;
-        double **tmplightmap;
+  int i,j,k,l,cnt;
+  double **tmplightmap;
 
-        /* Allocation du tableau temporaire, fait en dynamique puisque le static peut planter :
-         * taille du tableau si grand...
-         */
+  /* Allocation du tableau temporaire, fait en dynamique puisque le static peut planter :
+   * taille du tableau si grand...
+   */
 
-        tmplightmap = (double **)malloc(maxi*sizeof(double*));
-        if(tmplightmap==NULL)
-                return 1;
+  tmplightmap = (double **)malloc(maxi*sizeof(double*));
+  if(tmplightmap==NULL)
+    return 1;
 
-        for(i=0;i<maxi;i++)
-                {
-		  tmplightmap[i] = (double*)malloc(maxj*sizeof(double));
-                if(tmplightmap[i]==NULL)
-                        {
-                        i--;
-                        while(i>=0)
-                                {
-                                free(tmplightmap[i]);
-                                }
-                        free(tmplightmap);
-                        return 1;
-                        }
-                }
+  for(i=0;i<maxi;i++)
+  {
+    tmplightmap[i] = (double*)malloc(maxj*sizeof(double));
+    if(tmplightmap[i]==NULL)
+    {
+      i--;
+      while(i>=0)
+      {
+	free(tmplightmap[i]);
+      }
+      free(tmplightmap);
+      return 1;
+    }
+  }
 
-        /* Calcul de moyenne */
-        for(i=0;i<maxi;i++)
-        {
-                for(j=0;j<maxj;j++)
-                {
-                        /* Valeur par défaut */
-                        tmplightmap[i][j] = 0.0;
+  /* Calcul de moyenne */
+  for(i=0;i<maxi;i++)
+  {
+    for(j=0;j<maxj;j++)
+    {
+      /* Valeur par défaut */
+      tmplightmap[i][j] = 0.0;
 
-                        /* Compteur pour savoir combien d'éléments ont été sommés */
-                        cnt = 0;
+      /* Compteur pour savoir combien d'éléments ont été sommés */
+      cnt = 0;
 
-                        for(k=i-taille_patch;k<=i+taille_patch;k++)
-                        {
-                                for(l=j-taille_patch;l<=j+taille_patch;l++)
-                                {
-                                        /* Si les coordonnées sont bons */
-                                        if((k>=0)&&(l>=0)&&(k<maxi)&&(l<maxj))
-                                        {
-                                                tmplightmap[i][j] += lightmap[k][l];
-                                                cnt++;
-                                        }
-                                }
-                        }
+      for(k=i-taille_patch;k<=i+taille_patch;k++)
+      {
+	for(l=j-taille_patch;l<=j+taille_patch;l++)
+	{
+	  /* Si les coordonnées sont bons */
+	  if((k>=0)&&(l>=0)&&(k<maxi)&&(l<maxj))
+	  {
+	    tmplightmap[i][j] += lightmap[k][l];
+	    cnt++;
+	  }
+	}
+      }
 
-                        /* Calcul de la moyenne */
-                        if(cnt)
-                                {
-                                tmplightmap[i][j] /= cnt;
-                                }
-                        else
-                                tmplightmap[i][j] = 1.0f;
+      /* Calcul de la moyenne */
+      if(cnt)
+      {
+	tmplightmap[i][j] /= cnt;
+      }
+      else
+	tmplightmap[i][j] = 1.0f;
 
-                }
-        }
+    }
+  }
 
-        /* Recopie */
-        for(i=0;i<maxi;i++)
-        {
-                for(j=0;j<maxj;j++)
-                {
-                lightmap[i][j] = tmplightmap[i][j];
-                }
-        }
+  /* Recopie */
+  for(i=0;i<maxi;i++)
+  {
+    for(j=0;j<maxj;j++)
+    {
+      lightmap[i][j] = tmplightmap[i][j];
+    }
+  }
 
-	return 0;
+  return 0;
 }
 
 /*
@@ -432,11 +397,11 @@ int Terrain_AppliquePatch(double **lightmap, int maxi, int maxj, int taille_patc
 
 double Terrain_calcLightMap_Simple(SDL_Surface *image, int i, int j, int maxi, int maxj)
 {
-	if( (i-param.l_veci>=0)&&(i-param.l_veci<maxi) && (j-param.l_vecj>=0) &&(j-param.l_vecj<maxj) )
-		return 1.0 - (Terrain_GetHauteur(image, i-param.l_veci, j-param.l_vecj, maxi, maxj)
-			   - Terrain_GetHauteur(image, i, j, maxi, maxj))/param.l_adouc;
-	else
-		return 1.0f;
+  if( (i-param.l_veci>=0)&&(i-param.l_veci<maxi) && (j-param.l_vecj>=0) &&(j-param.l_vecj<maxj) )
+    return 1.0 - (Terrain_GetHauteur(image, i-param.l_veci, j-param.l_vecj, maxi, maxj)
+		  - Terrain_GetHauteur(image, i, j, maxi, maxj))/param.l_adouc;
+  else
+    return 1.0f;
 }
 
 /*
@@ -448,55 +413,59 @@ double Terrain_calcLightMap_Simple(SDL_Surface *image, int i, int j, int maxi, i
 
 double Terrain_calcLightMap_LDOTN(SDL_Surface *image, int i, int j, int maxi, int maxj)
 {
-SVecteur v1,v2,light,n;
-double tmp;
+  CPoint v1,v2,light,n;
+  double tmp;
 
-/* On doit récupérer la normale de ce point. Le plus simple est de définir deux vecteurs.
- * On va prendre les hauteurs de trois coins pour le faire
- */
- light.x = param.l_veci;
- light.y = param.l_vecj;
- light.z = param.l_vecz;
- Vecteur_Normalise(&light);
+  /* On doit récupérer la normale de ce point. Le plus simple est de définir deux vecteurs.
+   * On va prendre les hauteurs de trois coins pour le faire
+   */
+  light.x = param.l_veci;
+  light.y = param.l_vecj;
+  light.z = param.l_vecz;
+  light.normalize();
+  //  Vecteur_Normalise(&light);
 
-      if((i>0)&&(j>0)&&(i<maxi-1)&&(j<maxj-1))
-	{
-	/* Complétons ces vecteurs
-	 * Premier vecteur sera le vecteur (i-1,j-1) vers (i+1,j-1)
-	 * Deuxième vecteur sera le vecteur (i+1,j-1) vers (i+1,j+1)
-	 */
-	v1.x = 2; v1.y = 0;
-	v1.z = Terrain_GetHauteur(image,i+1,j-1, maxi, maxj) - Terrain_GetHauteur(image,i-1,j-1, maxi, maxj);
+  if((i>0)&&(j>0)&&(i<maxi-1)&&(j<maxj-1))
+  {
+    /* Complétons ces vecteurs
+     * Premier vecteur sera le vecteur (i-1,j-1) vers (i+1,j-1)
+     * Deuxième vecteur sera le vecteur (i+1,j-1) vers (i+1,j+1)
+     */
+    v1.x = 2; v1.y = 0;
+    v1.z = Terrain_GetHauteur(image,i+1,j-1, maxi, maxj) - Terrain_GetHauteur(image,i-1,j-1, maxi, maxj);
 
-	v2.x = 0; v2.y = 2;
-	v2.z = Terrain_GetHauteur(image,i+1,j+1, maxi, maxj) - Terrain_GetHauteur(image,i+1,j-1, maxi, maxj);
+    v2.x = 0; v2.y = 2;
+    v2.z = Terrain_GetHauteur(image,i+1,j+1, maxi, maxj) - Terrain_GetHauteur(image,i+1,j-1, maxi, maxj);
 
-	/* Normalise */
-	Vecteur_Normalise(&v1);
-	Vecteur_Normalise(&v2);
+    /* Normalise */
+    v1.normalize();
+    v2.normalize();
+//     Vecteur_Normalise(&v1);
+//     Vecteur_Normalise(&v2);
 
-	/*On cherche la normale*/
-	Vecteur_pVect(&v1,&v2,&n);
-	/*On normalise la normale*/
-	Vecteur_Normalise(&n);
-	/* On vérifie que le vecteur est dans le bon sens */
-	if(n.z<0)
-		{
-		n.x *=-1;
-		n.y *=-1;
-		n.z *=-1;
-		}
+    // Normal
+    n = v1 ^ v2;
+    // Normalize the Normal
+    n.normalize();
+    // Vecteur_Normalise(&n);
+    /* On vérifie que le vecteur est dans le bon sens */
+    if(n.z<0)
+    {
+      n.x *=-1;
+      n.y *=-1;
+      n.z *=-1;
+    }
 
-	/* On a la normale, on calcule maintenant L dot N */
-	tmp =  Vecteur_ProdScal(&light, &n);
+    /* On a la normale, on calcule maintenant L dot N */
+    tmp = light.ScalarProduct(n);
 
-	if(tmp < 0)
-		return -param.l_ldotnmultiple*tmp;
-	else
-		return 0.0f;
-	}
+    if(tmp < 0)
+      return -param.l_ldotnmultiple*tmp;
+    else
+      return 0.0f;
+  }
 
-      return 1.0f;
+  return 1.0f;
 }
 
 /*
@@ -504,59 +473,59 @@ double tmp;
  * Utilisant l'image de niveaux image et le vecteur de lumiere light, il regarde s'il y a une intersection
  * entre le rayon de vecteur light partant point de depart (i,j) et du terrain.
  */
-double Terrain_calcLightMap_Ray(SDL_Surface *image, int i, int j, int maxi, int maxj, SVecteur *light)
+double Terrain_calcLightMap_Ray(SDL_Surface *image, int i, int j, int maxi, int maxj, CPoint *light)
 {
-	SPoint cur;
-	float tmp;
+  CPoint cur;
+  float tmp;
 
-	/*
-	 * Verification s'il y a une intersection avec le terrain, si
-	 * c'est le cas, il n'y aura pas de lumiere ici
-	 */
+  /*
+   * Verification s'il y a une intersection avec le terrain, si
+   * c'est le cas, il n'y aura pas de lumiere ici
+   */
 
-	/*
-	 * Point de depart, le point(i,j) avec son hauteur
-	 */
-	tmp = i;
-	tmp /= maxi;
-	tmp *= image->h;
+  /*
+   * Point de depart, le point(i,j) avec son hauteur
+   */
+  tmp = i;
+  tmp /= maxi;
+  tmp *= image->h;
 
-	cur.x = tmp;
+  cur.x = tmp;
 
-	tmp = j;
-	tmp /= maxj;
-	tmp *= image->w;
+  tmp = j;
+  tmp /= maxj;
+  tmp *= image->w;
 
-	cur.y = tmp;
-	cur.z = Terrain_GetHauteur(image,i,j,maxi,maxj);
+  cur.y = tmp;
+  cur.z = Terrain_GetHauteur(image,i,j,maxi,maxj);
 
-	/* Tant qu'on est dans le terrain */
-	while( (cur.x>=0) && (cur.y>=0) && (cur.x<image->h) && (cur.y<image->w) )
-		{
-		/* On recupere la hauteur courante */
-		tmp = Terrain_GetHauteur(image,(int) cur.x, (int) cur.y, image->h, image->w);
+  /* Tant qu'on est dans le terrain */
+  while( (cur.x>=0) && (cur.y>=0) && (cur.x<image->h) && (cur.y<image->w) )
+  {
+    /* On recupere la hauteur courante */
+    tmp = Terrain_GetHauteur(image,(int) cur.x, (int) cur.y, image->h, image->w);
 
-		/* Si c'est au-dessus du maximum possible du terrain */
-		if(cur.z>param.hautmax)
-			{
-			/* On sort, pas d'intersection possible */
-			break;
-			}
+    /* Si c'est au-dessus du maximum possible du terrain */
+    if(cur.z>param.hautmax)
+    {
+      /* On sort, pas d'intersection possible */
+      break;
+    }
 
-		/* Si le terrain est au-dessus du vecteur de lumiere, le terrain cache la lumiere */
-	        if(tmp > cur.z)
-			{
-			return 0.0;
-			}
+    /* Si le terrain est au-dessus du vecteur de lumiere, le terrain cache la lumiere */
+    if(tmp > cur.z)
+    {
+      return 0.0;
+    }
 
-		/* Sinon, on continue avec le vecteur de lumiere */
-		cur.x += light->x;
-		cur.y += light->y;
-		cur.z += light->z;
-		}
+    /* Sinon, on continue avec le vecteur de lumiere */
+    cur.x += light->x;
+    cur.y += light->y;
+    cur.z += light->z;
+  }
 
-	/* Sinon pas d'intersection, on calcule la luminosite avec le calcul L dot N */
-	return Terrain_calcLightMap_LDOTN(image,i,j,maxi,maxj);
+  /* Sinon pas d'intersection, on calcule la luminosite avec le calcul L dot N */
+  return Terrain_calcLightMap_LDOTN(image,i,j,maxi,maxj);
 }
 
 /*
@@ -566,65 +535,67 @@ double Terrain_calcLightMap_Ray(SDL_Surface *image, int i, int j, int maxi, int 
 
 void Terrain_calcLightMap(SDL_Surface *image, double **lightmap, int maxi, int maxj)
 {
-	int i,j;
-	SVecteur light;
+  int i,j;
+  CPoint light;
 
-	light.x = -param.l_veci;
-	light.y = -param.l_vecj;
-	light.z = -param.l_vecz;
-	Vecteur_Normalise(&light);
+  light.x = -param.l_veci;
+  light.y = -param.l_vecj;
+  light.z = -param.l_vecz;
+  light.normalize();
+//   Vecteur_Normalise(&light);
 
-	/*
-	 * Calcul du vecteur lumiere normalise, donc le vecteur qui va vers la source de lumiere
-	 * Ceci sert pour le calcul d'ombre
-	 */
-	light.x = -param.l_veci;
-	light.y = -param.l_vecj;
-	light.z = -param.l_vecz;
-	Vecteur_Normalise(&light);
+  /*
+   * Calcul du vecteur lumiere normalise, donc le vecteur qui va vers la source de lumiere
+   * Ceci sert pour le calcul d'ombre
+   */
+  light.x = -param.l_veci;
+  light.y = -param.l_vecj;
+  light.z = -param.l_vecz;
+  light.normalize();
+//   Vecteur_Normalise(&light);
 
-	/* Première passe */
-	for(i=0;i<maxi;i++)
-	{
-		for(j=0;j<maxj;j++)
-		{
-		switch(param.light)
-			{
-			case L_PATCH:
-			case L_SIMPLE:
-				lightmap[i][j] = Terrain_calcLightMap_Simple(image,i,j,maxi,maxj);
-				break;
-			case L_LDOTN1:
-			case L_LDOTN4:
-				lightmap[i][j] = Terrain_calcLightMap_LDOTN(image,i,j,maxi,maxj);
-				break;
-			case L_RAYSIMPLE:
-			case L_RAYPATCH:
-				lightmap[i][j] = Terrain_calcLightMap_Ray(image,i,j,maxi,maxj,&light);
-				break;
-			default:
-				lightmap[i][j] = 1.0f;
-				break;
-			}
-		}
-	}
+  /* Première passe */
+  for(i=0;i<maxi;i++)
+  {
+    for(j=0;j<maxj;j++)
+    {
+      switch(param.light)
+      {
+	case L_PATCH:
+	case L_SIMPLE:
+	  lightmap[i][j] = Terrain_calcLightMap_Simple(image,i,j,maxi,maxj);
+	  break;
+	case L_LDOTN1:
+	case L_LDOTN4:
+	  lightmap[i][j] = Terrain_calcLightMap_LDOTN(image,i,j,maxi,maxj);
+	  break;
+	case L_RAYSIMPLE:
+	case L_RAYPATCH:
+	  lightmap[i][j] = Terrain_calcLightMap_Ray(image,i,j,maxi,maxj,&light);
+	  break;
+	default:
+	  lightmap[i][j] = 1.0f;
+	  break;
+      }
+    }
+  }
 
-	/* Deuxième passe (possible) */
-	switch(param.light)
-	{
-		case L_PATCH:
-		case L_RAYPATCH:
-		case L_LDOTN4:
-			/* On applique un lissage 4*4 sur le lightmap */
-			Terrain_AppliquePatch(lightmap,maxi,maxj,4);
-			break;
-		case L_LDOTN1:
-			/* On applique un lissage 1*1 sur le lightmap */
-			Terrain_AppliquePatch(lightmap,maxi,maxj,1);
-			break;
-		default: /* On ne fait rien */
-			break;
-	}
+  /* Deuxième passe (possible) */
+  switch(param.light)
+  {
+    case L_PATCH:
+    case L_RAYPATCH:
+    case L_LDOTN4:
+      /* On applique un lissage 4*4 sur le lightmap */
+      Terrain_AppliquePatch(lightmap,maxi,maxj,4);
+      break;
+    case L_LDOTN1:
+      /* On applique un lissage 1*1 sur le lightmap */
+      Terrain_AppliquePatch(lightmap,maxi,maxj,1);
+      break;
+    default: /* On ne fait rien */
+      break;
+  }
 
 
 }
@@ -632,262 +603,262 @@ void Terrain_calcLightMap(SDL_Surface *image, double **lightmap, int maxi, int m
 /* Detruire le terrain */
 void Terrain_Destruction(STerrain *terrain)
 {
-	if(terrain)
-		{
-		/* Destruction des textures OpenGL */
-		glDeleteTextures(1,&terrain->tex);
-		glDeleteTextures(1,&terrain->watertxt);
-		free(terrain);
-		}
+  if(terrain)
+  {
+    /* Destruction des textures OpenGL */
+    glDeleteTextures(1,&terrain->tex);
+    glDeleteTextures(1,&terrain->watertxt);
+    free(terrain);
+  }
 }
 
 /* Initialiser le terrain */
 STerrain* Terrain_Init(SDL_Surface *image)
 {
-	SDL_Surface *terraintxt,
-		    *prairies,
-		    *rocheuses,
-		    *neige,
-		    *water;
-	int i,j,tmpi,tmpj;
-	double diff;
-	double r,g,b;
-	STerrain* res;
-	float perc[3];
+  SDL_Surface *terraintxt,
+    *prairies,
+    *rocheuses,
+    *neige,
+    *water;
+  int i,j,tmpi,tmpj;
+  double diff;
+  double r,g,b;
+  STerrain* res;
+  float perc[3];
 
-	/* Pour calculer le temps de generation */
-	int start = time(NULL),end;
+  /* Pour calculer le temps de generation */
+  int start = time(NULL),end;
 
-	/* Affichage dans la console */
-	printf("Initialisation avec lumière: %d\n",param.light);
+  /* Affichage dans la console */
+  printf("Initialisation avec lumière: %d\n",param.light);
 
-	if(image==NULL)
-		return NULL;
+  if(image==NULL)
+    return NULL;
 
-	res = (STerrain*)malloc(sizeof *res);
+  res = (STerrain*)malloc(sizeof *res);
 
-	if(res==NULL)
-	{
-		printf("Malloc du terrain implicite a echoue\n");
-		return NULL;
-	}
+  if(res==NULL)
+  {
+    printf("Malloc du terrain implicite a echoue\n");
+    return NULL;
+  }
 
-	printf("Getting points\n");
-	for(i=0;i<MAX_POINTS;i++)
-	{
-		for(j=0;j<MAX_POINTS;j++)
-		{
-			res->hauteur[i][j] = Terrain_GetHauteur(image,i,j, MAX_POINTS, MAX_POINTS);
-		}
-	}
+  printf("Getting points\n");
+  for(i=0;i<MAX_POINTS;i++)
+  {
+    for(j=0;j<MAX_POINTS;j++)
+    {
+      res->hauteur[i][j] = Terrain_GetHauteur(image,i,j, MAX_POINTS, MAX_POINTS);
+    }
+  }
 
-	printf("Generating terrain texture\n");
+  printf("Generating terrain texture\n");
 
-	/*
-	 * On a trois textures, celle des prairies, rocheuses, neige
-	 */
-	prairies = SDL_LoadBMP("data/grassm.bmp");
-	if(prairies==NULL)
-		{
-		printf("Error avec texture prairie\n");
-		free(res);
-		return NULL;
-		}
+  /*
+   * On a trois textures, celle des prairies, rocheuses, neige
+   */
+  prairies = SDL_LoadBMP("data/grassm.bmp");
+  if(prairies==NULL)
+  {
+    printf("Error avec texture prairie\n");
+    free(res);
+    return NULL;
+  }
 
-	rocheuses = SDL_LoadBMP("data/rock.bmp");
-	if(rocheuses==NULL)
-		{
-		printf("Error avec texture rocheuse\n");
-		SDL_FreeSurface(prairies);
-		free(res);
-		return NULL;
-		}
+  rocheuses = SDL_LoadBMP("data/rock.bmp");
+  if(rocheuses==NULL)
+  {
+    printf("Error avec texture rocheuse\n");
+    SDL_FreeSurface(prairies);
+    free(res);
+    return NULL;
+  }
 
-	neige = SDL_LoadBMP("data/snow.bmp");
+  neige = SDL_LoadBMP("data/snow.bmp");
 
-	if(neige==NULL)
-		{
-		printf("Error avec texture neige\n");
-		SDL_FreeSurface(prairies);
-		SDL_FreeSurface(rocheuses);
-		SDL_FreeSurface(image);
-		free(res);
-		return NULL;
-		}
+  if(neige==NULL)
+  {
+    printf("Error avec texture neige\n");
+    SDL_FreeSurface(prairies);
+    SDL_FreeSurface(rocheuses);
+    SDL_FreeSurface(image);
+    free(res);
+    return NULL;
+  }
 
-	/* Creer une surface pour la texture, pour la passer a OpenGL */
-	terraintxt = SDL_CreateRGBSurface(SDL_HWSURFACE, 1024, 1024, 32, 8, 8, 8, 0);
-	if(terraintxt==NULL)
-		{
-		printf("Error avec texture terrain\n");
-		SDL_FreeSurface(prairies);
-		SDL_FreeSurface(rocheuses);
-		SDL_FreeSurface(neige);
-		SDL_FreeSurface(image);
-		free(res);
-		return NULL;
-		}
-
-
-	/* Allouer un tableau pour les coefficients de luminosite */
-	double **lightmap = (double**)malloc(sizeof(double)*terraintxt->h);
-	if(lightmap==NULL)
-		{
-		printf("Error avec l'allocation de la lightmap\n");
-		SDL_FreeSurface(prairies);
-		SDL_FreeSurface(rocheuses);
-		SDL_FreeSurface(neige);
-		SDL_FreeSurface(terraintxt);
-		SDL_FreeSurface(image);
-		free(res);
-		return NULL;
-		}
-
-	/* Allocation de la 2eme dimension */
-	for(i=0;i<terraintxt->h;i++)
-		{
-		  lightmap[i] = (double*)malloc(sizeof(double)*terraintxt->w);
-		if(lightmap[i]==NULL)
-			{
-			SDL_FreeSurface(prairies);
-			SDL_FreeSurface(rocheuses);
-			SDL_FreeSurface(neige);
-			SDL_FreeSurface(terraintxt);
-			SDL_FreeSurface(image);
-			free(res);
-			while(i>=0)
-				{
-					free(lightmap[i]);
-					i--;
-				}
-			free(lightmap);
-			return NULL;
-			}
-		}
-
-	/* On calcule le lightmap */
-	Terrain_calcLightMap(image,lightmap,terraintxt->h,terraintxt->w);
-
-	/*Pour chaque pixel, on calcule la composition des 3 textures*/
-	for(i=0;i<terraintxt->h;i++)
-		for(j=0;j<terraintxt->w;j++)
-		{
-		/* Recuperation du coefficient de luminosite */
-		diff = lightmap[i][j];
-
-		/* Verification des seuils de luminosite */
-		if(diff<param.l_min)
-			diff =param.l_min;
-		else if(diff>param.l_max)
-			diff = 1.0;
-
-		/* Recuperation des participations de couleurs pour le pixel courant */
-		tmpi =	(int ) (( ((float) i)/terraintxt->h) * image->h) ;
-		tmpj =	(int ) (( ((float) j)/terraintxt->w) * image->w) ;
-		Terrain_RemplitPerc(perc,((unsigned char*) image->pixels)[tmpi*image->w*3 + tmpj*3]);
+  /* Creer une surface pour la texture, pour la passer a OpenGL */
+  terraintxt = SDL_CreateRGBSurface(SDL_HWSURFACE, 1024, 1024, 32, 8, 8, 8, 0);
+  if(terraintxt==NULL)
+  {
+    printf("Error avec texture terrain\n");
+    SDL_FreeSurface(prairies);
+    SDL_FreeSurface(rocheuses);
+    SDL_FreeSurface(neige);
+    SDL_FreeSurface(image);
+    free(res);
+    return NULL;
+  }
 
 
-		/* On recupere les couleurs */
-		tmpi =	i%prairies->h;
-		tmpj =	j%prairies->w;
+  /* Allouer un tableau pour les coefficients de luminosite */
+  double **lightmap = (double**)malloc(sizeof(double)*terraintxt->h);
+  if(lightmap==NULL)
+  {
+    printf("Error avec l'allocation de la lightmap\n");
+    SDL_FreeSurface(prairies);
+    SDL_FreeSurface(rocheuses);
+    SDL_FreeSurface(neige);
+    SDL_FreeSurface(terraintxt);
+    SDL_FreeSurface(image);
+    free(res);
+    return NULL;
+  }
 
-		b = perc[0] * Terrain_GetPixelColor(prairies,tmpi,tmpj,0);
-		g = perc[0] * Terrain_GetPixelColor(prairies,tmpi,tmpj,1);
-		r = perc[0] * Terrain_GetPixelColor(prairies,tmpi,tmpj,2);
+  /* Allocation de la 2eme dimension */
+  for(i=0;i<terraintxt->h;i++)
+  {
+    lightmap[i] = (double*)malloc(sizeof(double)*terraintxt->w);
+    if(lightmap[i]==NULL)
+    {
+      SDL_FreeSurface(prairies);
+      SDL_FreeSurface(rocheuses);
+      SDL_FreeSurface(neige);
+      SDL_FreeSurface(terraintxt);
+      SDL_FreeSurface(image);
+      free(res);
+      while(i>=0)
+      {
+	free(lightmap[i]);
+	i--;
+      }
+      free(lightmap);
+      return NULL;
+    }
+  }
 
-		tmpi =	i%rocheuses->h;
-		tmpj =	j%rocheuses->w;
+  /* On calcule le lightmap */
+  Terrain_calcLightMap(image,lightmap,terraintxt->h,terraintxt->w);
 
-		b += perc[1] * Terrain_GetPixelColor(rocheuses,tmpi,tmpj,0);
-		g += perc[1] * Terrain_GetPixelColor(rocheuses,tmpi,tmpj,1);
-		r += perc[1] * Terrain_GetPixelColor(rocheuses,tmpi,tmpj,2);
+  /*Pour chaque pixel, on calcule la composition des 3 textures*/
+  for(i=0;i<terraintxt->h;i++)
+    for(j=0;j<terraintxt->w;j++)
+    {
+      /* Recuperation du coefficient de luminosite */
+      diff = lightmap[i][j];
 
-		tmpi =	i%neige->h;
-		tmpj =	j%neige->w;
+      /* Verification des seuils de luminosite */
+      if(diff<param.l_min)
+	diff =param.l_min;
+      else if(diff>param.l_max)
+	diff = 1.0;
 
-		b += perc[2] * Terrain_GetPixelColor(neige,tmpi,tmpj,0);
-		g += perc[2] * Terrain_GetPixelColor(neige,tmpi,tmpj,1);
-		r += perc[2] * Terrain_GetPixelColor(neige,tmpi,tmpj,2);
+      /* Recuperation des participations de couleurs pour le pixel courant */
+      tmpi =	(int ) (( ((float) i)/terraintxt->h) * image->h) ;
+      tmpj =	(int ) (( ((float) j)/terraintxt->w) * image->w) ;
+      Terrain_RemplitPerc(perc,((unsigned char*) image->pixels)[tmpi*image->w*3 + tmpj*3]);
 
-		/* Calcul d'ombre */
-		b *= diff*param.lum;
-		g *= diff*param.lum;
-		r *= diff*param.lum;
 
-		if(b>255)
-			b=255;
-		if(g>255)
-			g=255;
-		if(r>255)
-			r=255;
+      /* On recupere les couleurs */
+      tmpi =	i%prairies->h;
+      tmpj =	j%prairies->w;
 
-		/* On inverse pour avoir la couleur dans le bon sens */
-		((unsigned char*) terraintxt->pixels)[i*3*terraintxt->w + j*3] = (unsigned char) r;
-		((unsigned char*) terraintxt->pixels)[i*3*terraintxt->w + j*3+1] = (unsigned char) g;
-		((unsigned char*) terraintxt->pixels)[i*3*terraintxt->w + j*3+2] = (unsigned char) b;
+      b = perc[0] * Terrain_GetPixelColor(prairies,tmpi,tmpj,0);
+      g = perc[0] * Terrain_GetPixelColor(prairies,tmpi,tmpj,1);
+      r = perc[0] * Terrain_GetPixelColor(prairies,tmpi,tmpj,2);
 
-		}
+      tmpi =	i%rocheuses->h;
+      tmpj =	j%rocheuses->w;
 
-	/* On passe la texture a OpenGL */
-    	glGenTextures(1,&(res->tex));
-	glBindTexture(GL_TEXTURE_2D,res->tex);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 3, terraintxt->w, terraintxt->h, GL_RGB, GL_UNSIGNED_BYTE, terraintxt->pixels);
+      b += perc[1] * Terrain_GetPixelColor(rocheuses,tmpi,tmpj,0);
+      g += perc[1] * Terrain_GetPixelColor(rocheuses,tmpi,tmpj,1);
+      r += perc[1] * Terrain_GetPixelColor(rocheuses,tmpi,tmpj,2);
 
-	/* Désallocation */
-	for(i=0;i<terraintxt->h;i++)
-		{
-		free(lightmap[i]);
-		}
-	free(lightmap);
+      tmpi =	i%neige->h;
+      tmpj =	j%neige->w;
 
-	SDL_FreeSurface(terraintxt);
-	SDL_FreeSurface(image);
-	SDL_FreeSurface(prairies);
-	SDL_FreeSurface(rocheuses);
-	SDL_FreeSurface(neige);
+      b += perc[2] * Terrain_GetPixelColor(neige,tmpi,tmpj,0);
+      g += perc[2] * Terrain_GetPixelColor(neige,tmpi,tmpj,1);
+      r += perc[2] * Terrain_GetPixelColor(neige,tmpi,tmpj,2);
 
-	/* Afficage du temps de generation */
-	end = time(NULL);
-	printf("Temps pour la generation : %d\n",end-start);
+      /* Calcul d'ombre */
+      b *= diff*param.lum;
+      g *= diff*param.lum;
+      r *= diff*param.lum;
 
-	/* Avant de retourner la main, on va charger l'eau */
+      if(b>255)
+	b=255;
+      if(g>255)
+	g=255;
+      if(r>255)
+	r=255;
 
-	water = SDL_LoadBMP("data/water.bmp");
-	if(water)
-		{
-	        glGenTextures(1,&(res->watertxt));
-	        glBindTexture(GL_TEXTURE_2D,res->watertxt);
-	        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-	        gluBuild2DMipmaps(GL_TEXTURE_2D, 3, water->w, water->h, GL_RGB, GL_UNSIGNED_BYTE, water->pixels);
-		}
-	SDL_FreeSurface(water);
+      /* On inverse pour avoir la couleur dans le bon sens */
+      ((unsigned char*) terraintxt->pixels)[i*3*terraintxt->w + j*3] = (unsigned char) r;
+      ((unsigned char*) terraintxt->pixels)[i*3*terraintxt->w + j*3+1] = (unsigned char) g;
+      ((unsigned char*) terraintxt->pixels)[i*3*terraintxt->w + j*3+2] = (unsigned char) b;
 
-	return res;
+    }
+
+  /* On passe la texture a OpenGL */
+  glGenTextures(1,&(res->tex));
+  glBindTexture(GL_TEXTURE_2D,res->tex);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+  gluBuild2DMipmaps(GL_TEXTURE_2D, 3, terraintxt->w, terraintxt->h, GL_RGB, GL_UNSIGNED_BYTE, terraintxt->pixels);
+
+  /* Désallocation */
+  for(i=0;i<terraintxt->h;i++)
+  {
+    free(lightmap[i]);
+  }
+  free(lightmap);
+
+  SDL_FreeSurface(terraintxt);
+  SDL_FreeSurface(image);
+  SDL_FreeSurface(prairies);
+  SDL_FreeSurface(rocheuses);
+  SDL_FreeSurface(neige);
+
+  /* Afficage du temps de generation */
+  end = time(NULL);
+  printf("Temps pour la generation : %d\n",end-start);
+
+  /* Avant de retourner la main, on va charger l'eau */
+
+  water = SDL_LoadBMP("data/water.bmp");
+  if(water)
+  {
+    glGenTextures(1,&(res->watertxt));
+    glBindTexture(GL_TEXTURE_2D,res->watertxt);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, water->w, water->h, GL_RGB, GL_UNSIGNED_BYTE, water->pixels);
+  }
+  SDL_FreeSurface(water);
+
+  return res;
 }
 
 STerrain *makeTerrain(STerrain *terrain)
 {
-    SDL_WM_SetCaption("Création du terrain, patientez...",NULL);
-    Terrain_Destruction(terrain);
-    GenererCalquePerlin(param.frequence, param.octaves, param.persistance, param.random);
-    terrain = Terrain_Init(SDL_LoadBMP(IMAGE_FILE));
-    SDL_WM_SetCaption("Affichage du terrain",NULL);
-    return terrain;
+  SDL_WM_SetCaption("Création du terrain, patientez...",NULL);
+  Terrain_Destruction(terrain);
+  GenererCalquePerlin(param.frequence, param.octaves, param.persistance, param.random);
+  terrain = Terrain_Init(SDL_LoadBMP(IMAGE_FILE));
+  SDL_WM_SetCaption("Affichage du terrain",NULL);
+  return terrain;
 }
 
 struct calque* InitCalqueAlea(){
   struct calque *c = init_calque(NB_PTS_CALQUE, 1);
-    if (!c)
-        return NULL;
-    int i,j;
-    for (i=0; i<c->taille; i++)
-        for (j=0; j<c->taille; j++)
-            c->v[i][j]=aleatoire(256);
+  if (!c)
+    return NULL;
+  int i,j;
+  for (i=0; i<c->taille; i++)
+    for (j=0; j<c->taille; j++)
+      c->v[i][j]=aleatoire(256);
 
-    return c;
+  return c;
 }
 
 

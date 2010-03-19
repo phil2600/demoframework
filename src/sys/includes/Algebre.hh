@@ -39,6 +39,7 @@ public:
   CPoint operator/ (const double a)const;
 
   CPoint crossProduct(const CPoint & v)const;
+  float ScalarProduct (const CPoint & v)const;
   double length()const;
 
   CPoint operator +(CPoint p);
