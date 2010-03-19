@@ -30,13 +30,18 @@ void	display();
 void	update_shapes();
 void	draw_particles(void);
 
+GLuint texture1;
+GLuint texture2;
+GLuint texture3;
+GLuint texture4;
+
 int	main(int argc,char** argv)
 {
   EventFactory event_factory;
   ShapeFactory shape_factory;
-
   Camera * camera;
   graphical_env.init_GL();
+  graphical_env.logger("Render Initialized");
   graphical_env.setActiveCamera(new Camera(CPoint(0, 0, 20)));
 
   event_cube = event_factory.createInstance("cube");
@@ -45,6 +50,12 @@ int	main(int argc,char** argv)
   shape_grid = shape_factory.createInstance("grid");
   shape_ball = shape_factory.createInstance("ball");
 
+  texture1 = loadTexture("data/stainedglass05.jpg");
+  texture4 = loadTexture("data/metal091.jpg");
+
+  //  create_perlin();
+  myterrain();
+  //  exit(1);
 
   display_process();
 
@@ -71,89 +82,71 @@ void	update_shapes()
 
 void	draw_shapes(void)
 {
-  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  /* AXIS */
   graphical_env.drawAxis3D();
 
-  /* Draw Sphere */
-  glPushMatrix();
-    GLUquadric* params = gluNewQuadric();
-    gluQuadricDrawStyle(params,GLU_LINE);
-    gluSphere(params,0.75,20,20);
-  glPopMatrix();
+  /* TEXTURED CUBE */
+  draw_textured_cube(texture1);
 
+  /* GROUND */
+  draw_textured_ground(texture4, 100);
 
   /* The EventCube */
   glPushMatrix();
-   event_cube->get_shape()->rotation(0, 0, 0);
-   event_cube->get_shape()->rotation_cst(20, 0, 0);
+   event_cube->get_shape()->rotation(-rot1, -rot1, -rot1);
    event_cube->get_shape()->position(1,-15,0);
-   event_cube->update();
+   event_cube->update_rot();
+   event_cube->update_pos();
    glBegin(GL_POINTS);
     event_cube->display(0.0);
    glEnd();
   glPopMatrix();
 
-  /* Just a surface */
-  glPushMatrix();
-    glBegin(GL_QUADS);
-  glColor3f(0.1, 0.3, 0.1);
-    glVertex3d(0,10,0);
-    glVertex3d(0,0,0);
-  glColor3f(0.3, 0.1, 0.1);
-    glVertex3d(5,0,0);
-  glColor3f(0.1, 0.1, 0.3);
-    glVertex3d(5,10,0);
-    glEnd();
-  glPopMatrix();
-
   /* Draw Particle Cube */
   glPushMatrix();
-
    particle_cube.rotation(rot1, rot1, rot1);
    particle_cube.rotation_cst(0, 0, 0);
-   particle_cube.position(0,0,0);
-   particle_cube.update();
+   particle_cube.position(0,0,30);
+   particle_cube.update_pos();
+   particle_cube.update_rot();
 
    glBegin(GL_POINTS);
     particle_cube.display();
    glEnd();
-
   glPopMatrix();
 
   /* Draw Particle Cube 2 */
   glPushMatrix();
-
    rot1 -= 1.0f;
    particle_cube2.rotation(-rot1, -rot1, -rot1);
    particle_cube2.rotation_cst(0, 0, 0);
    particle_cube2.position(0,13,0);
-   particle_cube2.update();
+   particle_cube2.update_pos();
+   particle_cube2.update_rot();
 
    glBegin(GL_POINTS);
     particle_cube2.display();
    glEnd();
-
   glPopMatrix();
 
   /* Draw Grid */
    shape_grid->display();
 
   /* Draw Ball */
-  shape_ball->display();
-
+   shape_ball->position(0, 0, 2.1);
+   shape_ball->update_pos();
+   shape_ball->display();
 }
 
 void	display()
 {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
   graphical_env.getActiveCamera()->look();
-
-  //  gluLookAt(1.5, 1.5, 5, 1.5, 1.5, 0, 0, 1, 0);
-
-  draw_shapes();
+  myterrain();
+  //  draw_shapes();
 
   glFlush();
   SDL_GL_SwapBuffers();
@@ -170,6 +163,7 @@ void	event_management(SDL_Event *event, char *quit)
 
       case SDL_VIDEORESIZE:
 	graphical_env.reshape(event->resize.w,event->resize.h);
+	break;
 
       case SDL_KEYDOWN:
 	switch (event->key.keysym.sym)

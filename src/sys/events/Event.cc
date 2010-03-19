@@ -37,3 +37,15 @@ Event::get_shape()
 {
   return shape_;
 }
+
+void
+Event::update_pos()
+{
+  shape_->update_pos();
+}
+
+void
+Event::update_rot()
+{
+  shape_->update_rot();
+}

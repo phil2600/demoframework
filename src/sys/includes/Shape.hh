@@ -16,7 +16,8 @@ public:
   void rotation(float x, float y, float z);
   void move(float x, float y, float z);
   void translate(float x, float y, float z);
-  virtual void update();
+  virtual void update_rot();
+  virtual void update_pos();
   virtual void update_special();
 
   virtual void display() = 0;

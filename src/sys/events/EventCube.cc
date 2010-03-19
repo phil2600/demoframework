@@ -20,12 +20,6 @@ EventCube::display(float time)
 }
 
 void
-EventCube::update()
-{
-  shape_->update();
-}
-
-void
 EventCube::change_params(std::string name, std::string value)
 {
 }

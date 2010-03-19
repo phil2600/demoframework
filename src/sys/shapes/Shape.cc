@@ -41,12 +41,16 @@ Shape::move(float x, float y, float z)
 }
 
 void
-Shape::update()
+Shape::update_rot()
 {
   glRotatef(rotX_, 0, 0, 1);
   glRotatef(rotY_, 0, 1, 0);
   glRotatef(rotZ_, 1, 0, 0);
+}
 
+void
+Shape::update_pos()
+{
   glTranslatef(posX_, posY_, posZ_);
 }
 

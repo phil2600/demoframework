@@ -64,6 +64,10 @@ public:
   Camera*  getActiveCamera();
   void     setActiveCamera(Camera *activeCamera);
 
+  void indent_log(int indent);
+  void print_indent();
+  void logger(std::string str);
+
 private:
   int  bpp_;
   bool fullscreen_;
@@ -72,6 +76,10 @@ private:
 
   Camera dummyCamera_;
   Camera *activeCamera_;
+
+  char is_logging_;
+  unsigned int log_indent_;
+  float start_time_;
 };
 
 #endif /* !GRAPHENV_HH_ */

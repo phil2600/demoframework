@@ -13,7 +13,8 @@ public:
 
   virtual void init() = 0;
   virtual void display(float time) = 0;
-  virtual void update() = 0;
+  virtual void update_pos();
+  virtual void update_rot();
 
   virtual void change_params(std::string name, std::string value) = 0;
 

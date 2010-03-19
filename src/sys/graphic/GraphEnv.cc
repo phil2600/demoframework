@@ -1,4 +1,5 @@
 # include "../includes/GraphEnv.hh"
+# include "../includes/tools.hh"
 
 GraphEnv::GraphEnv(int width, int height, int bpp, char fullscreen)
 {
@@ -6,6 +7,16 @@ GraphEnv::GraphEnv(int width, int height, int bpp, char fullscreen)
   height_ = height;
   bpp_ = bpp;
   fullscreen_ = fullscreen;
+  start_time_ = 0;
+  log_indent_ = 0;
+
+#ifdef DEBUG
+  is_logging_ = 1;
+#else
+  is_logging_ = 0;
+#endif
+
+  logger("GraphEnv Created");
 }
 
 GraphEnv::~GraphEnv()
@@ -73,6 +84,7 @@ GraphEnv::init_GL()
     | SDL_HWSURFACE
     | SDL_HWACCEL;
 
+  test_cpu_instructions();
   if (SDL_Init(SDL_INIT_VIDEO) == -1)
     exit (1);
 
@@ -95,6 +107,7 @@ GraphEnv::init_GL()
   glLoadIdentity();
   gluPerspective(70, width_ / height_, 0.001, 1000);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_TEXTURE_2D);
 
   glPointSize(2.0);
 }
@@ -189,6 +202,7 @@ GraphEnv::drawAxis3D()
   glDisable(GL_LINE_STIPPLE);
   glLineWidth(1.0f);
 
+  glColor3ub(255,255,255);
 }
 
 void
@@ -313,4 +327,27 @@ GraphEnv::loadMatrix(CMatrix m)
   values[15] = m.e[3][3];
 
   glLoadMatrixd(values);
+}
+
+void
+GraphEnv::print_indent()
+{
+  for (int i = 0; i < log_indent_; i++)
+    std::cout << " ";
+}
+
+void
+GraphEnv::indent_log(int indent)
+{
+  log_indent_ += indent;
+}
+
+void
+GraphEnv::logger(std::string str)
+{
+  if (is_logging_)
+  {
+    print_indent();
+    std::cerr << "[+] " << str << std::endl;
+  }
 }

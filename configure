@@ -29,7 +29,10 @@ src/sys/events/EventFactory.cc \
 src/sys/shapes/Shape.cc \
 src/sys/shapes/ShapeFactory.cc \
 src/sys/shapes/ShapeGrid.cc \
-src/sys/shapes/ShapeBall.cc
+src/sys/shapes/ShapeBall.cc \
+src/sys/graphic/misc_shapes.cc \
+src/sys/graphic/Perlin.cc \
+src/sys/graphic/Terrain.cc
 
 
   CC	= g++
@@ -37,16 +40,16 @@ src/sys/shapes/ShapeBall.cc
   RM	= rm -f
 
 
-  CFLAGS        = `sdl-config --cflags` -O3 -fPIC
-  CFLAGS       += -fomit-frame-pointer -fno-rtti -fno-stack-limit
-  CFLAGS       += -fno-math-errno -ffast-math
-  CFLAGS       += -fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
+  CFLAGS        = `sdl-config --cflags` -O3 -g
+#  CFLAGS       += -fomit-frame-pointer -fno-rtti -fno-stack-limit
+#  CFLAGS       += -fno-math-errno -ffast-math
+#  CFLAGS       += -fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
 
   LDLIBS        = `sdl-config --libs`
   FUCKING_FLAGS	=
 #-Wall -Werror -Wall -W
-  LDFLAGS       = -lm -lGL -lGLU
-  PERSO_FLAGS   =
+  LDFLAGS       = -lm -lGL -lGLU -lSDL_image -g
+  PERSO_FLAGS   = -DDEBUG
 #-DFAST_MATHS
 
 

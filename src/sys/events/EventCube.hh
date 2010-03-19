@@ -10,7 +10,7 @@ public:
   ~EventCube();
   void init();
   void display(float time);
-  void update();
+//   void update();
   void change_params(std::string name, std::string value);
   std::string get_type();
 };

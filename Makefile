@@ -7,10 +7,10 @@ all: $(EXEC)
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(FUCKING_FLAGS) $(LDLIBS) $(LDFLAGS)
 	@echo
-	@echo -n "[+] Before strip: "
+	@echo -n "[!] Before strip: "
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
-	@echo -n "[+] After strip: "
-	@strip -s -R .comment -R .gnu.version $(EXEC)
+	@echo -n "[!] After strip: "
+#	@strip -s -R .comment -R .gnu.version $(EXEC)
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
 	@zsh -c 'cat **/*.{hh,cc,asm}' | wc
 
@@ -42,7 +42,7 @@ final: $(EXEC)
 	@cat stub $<.lzma > $(FINAL)
 	@rm $<.lzma
 	@chmod a+rx $(FINAL)
-	@echo -n "[+] After stub: "
+	@echo -n "[!] After stub: "
 	@ls -F -b -h -l $(FINAL) | sed -e 's/.* \(.*K\).*/\1/'
 
 run: final
