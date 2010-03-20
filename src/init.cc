@@ -6,6 +6,7 @@
 #include "sys/includes/graphic.hh"
 #include "sys/includes/EventFactory.hh"
 #include "sys/includes/ShapeFactory.hh"
+#include "sys/graphic/Perlin.hh"
 
 // Debugging STUFF
 float rot1  = 0.0f;
@@ -53,7 +54,10 @@ int	main(int argc,char** argv)
   texture1 = loadTexture("data/stainedglass05.jpg");
   texture4 = loadTexture("data/metal091.jpg");
 
-  //  create_perlin();
+  Perlin perlin(&graphical_env);
+
+  // perlin.process_perlin();
+//   return 0;
   myterrain();
   //  exit(1);
 
@@ -146,7 +150,7 @@ void	display()
 
   graphical_env.getActiveCamera()->look();
   myterrain();
-  //  draw_shapes();
+  draw_shapes();
 
   glFlush();
   SDL_GL_SwapBuffers();

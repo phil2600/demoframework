@@ -1,5 +1,7 @@
 #include "Terrain.hh"
 
+Perlin perlin(NULL);
+
 /* Fonction d'initialisation */
 STerrain* Terrain_Init(SDL_Surface*);
 
@@ -11,103 +13,6 @@ SParam param = {0,1,1,0,10.0,1,-65.0,0.0,-6.0,1.0,0,3.0,
 		L_AUCUN,-1,0,-0.02,0.2,1.0,0.01,47.0,
 		4,2,.2, NULL};
 
-
-struct calque* init_calque(int t, float p)
-{
-  struct calque *s = (struct calque*)malloc(sizeof(struct calque));
-  if(!s){
-    printf("erreur d'alloc");
-    return NULL;
-  }
-
-  s->v = (int **)malloc(t*sizeof(int*));
-  if(!s->v){
-    printf("erreur d'alloc");
-    return NULL;
-  }
-  int i,j;
-  for (i=0; i<t ; i++){
-    s->v[i]= (int *)malloc(t*sizeof(int));
-    if(!s->v[i]) {
-      printf("erreur d'alloc");
-      return NULL;
-    }
-    for (j=0; j<t; j++)
-      s->v[i][j]=0;
-  }
-  s->taille = t;
-  s->persistance = p;
-
-  return s;
-}
-
-
-
-void GenererCalquePerlin(int frequence, int octaves, float persistance , struct calque *r){
-  struct calque *c = init_calque(NB_PTS_CALQUE, 1);
-
-  int taille = c->taille;
-  int i,j,n,f_courante;
-  int a;
-  float pas, sum_persistances;
-
-  pas = (float)(taille)/frequence;
-  float persistance_courante = persistance;
-
-  // calques de travail
-  struct calque **mes_calques = (struct calque**)malloc(octaves*sizeof(struct calque*));
-  for (i=0; i<octaves; i++){
-    mes_calques[i] = init_calque(NB_PTS_CALQUE, persistance_courante);
-    persistance_courante*=persistance;
-  }
-
-  f_courante = frequence;
-
-  // remplissage de calque
-  for (n=0; n<octaves; n++){
-    for(i=0; i<taille; i++)
-      for(j=0; j<taille; j++) {
-	a = valeur_interpolee(i, j, f_courante, r);
-	mes_calques[n]->v[i][j]=a;
-      }
-    f_courante*=frequence;
-  }
-
-  sum_persistances = 0;
-  for (i=0; i<octaves; i++)
-    sum_persistances+=mes_calques[i]->persistance;
-
-  // ajout des calques successifs
-  for (i=0; i<taille; i++)
-    for (j=0; j<taille; j++){
-      for (n=0; n<octaves; n++)
-	c->v[i][j]+=mes_calques[n]->v[i][j]*mes_calques[n]->persistance;
-
-      // normalisation
-      c->v[i][j] =  c->v[i][j] / sum_persistances;
-    }
-
-  SDL_Surface *s = SDL_CreateRGBSurface(SDL_SWSURFACE,taille, taille, 32,0, 0, 0, 0);
-  if (!s)
-    printf("erreur SDL sur SDL_CreateRGBSurface");
-
-  Uint32 u;
-  SDL_PixelFormat *fmt = s->format;
-  for (i=0; i< taille; i++)
-    for (j=0; j< taille; j++){
-      u = SDL_MapRGB  (fmt, (char)c->v[i][j], (char)c->v[i][j], (char)c->v[i][j]);
-      colorerPixel(s, i, j, u);
-    }
-
-  // libération mémoire
-  for (i=0; i<octaves; i++)
-    free_calque(mes_calques[i]);
-  free(mes_calques);
-  free_calque(c);
-
-  SDL_SaveBMP(s, IMAGE_FILE);
-  SDL_FreeSurface(s);
-}
 
 /* Dessiner en 3D filaire */
 void Graphique_Dessin3D()
@@ -440,8 +345,8 @@ double Terrain_calcLightMap_LDOTN(SDL_Surface *image, int i, int j, int maxi, in
     /* Normalise */
     v1.normalize();
     v2.normalize();
-//     Vecteur_Normalise(&v1);
-//     Vecteur_Normalise(&v2);
+    //     Vecteur_Normalise(&v1);
+    //     Vecteur_Normalise(&v2);
 
     // Normal
     n = v1 ^ v2;
@@ -542,7 +447,7 @@ void Terrain_calcLightMap(SDL_Surface *image, double **lightmap, int maxi, int m
   light.y = -param.l_vecj;
   light.z = -param.l_vecz;
   light.normalize();
-//   Vecteur_Normalise(&light);
+  //   Vecteur_Normalise(&light);
 
   /*
    * Calcul du vecteur lumiere normalise, donc le vecteur qui va vers la source de lumiere
@@ -552,7 +457,7 @@ void Terrain_calcLightMap(SDL_Surface *image, double **lightmap, int maxi, int m
   light.y = -param.l_vecj;
   light.z = -param.l_vecz;
   light.normalize();
-//   Vecteur_Normalise(&light);
+  //   Vecteur_Normalise(&light);
 
   /* Première passe */
   for(i=0;i<maxi;i++)
@@ -841,22 +746,30 @@ STerrain* Terrain_Init(SDL_Surface *image)
 
 STerrain *makeTerrain(STerrain *terrain)
 {
-  SDL_WM_SetCaption("Création du terrain, patientez...",NULL);
-  Terrain_Destruction(terrain);
-  GenererCalquePerlin(param.frequence, param.octaves, param.persistance, param.random);
+  //   SDL_WM_SetCaption("Création du terrain, patientez...",NULL);
+  //   Terrain_Destruction(terrain);
+  //  GenererLayerPerlin(param.frequence, param.octaves, param.persistance, param.random);
+  //  GenererLayerPerlin(param.frequence, param.octaves, param.persistance, param.random);
+  perlin.set_layer_size(NB_PTS_LAYER);
+  perlin.set_out_pic_name(IMAGE_FILE);
+
+  perlin.set_layer(perlin.init_layer(NB_PTS_LAYER, 1));
+  perlin.generate_layer();
+
+  param.random = perlin.get_layer();
   terrain = Terrain_Init(SDL_LoadBMP(IMAGE_FILE));
-  SDL_WM_SetCaption("Affichage du terrain",NULL);
+  //   SDL_WM_SetCaption("Affichage du terrain",NULL);
   return terrain;
 }
 
-struct calque* InitCalqueAlea(){
-  struct calque *c = init_calque(NB_PTS_CALQUE, 1);
+s_layer* InitLayerAlea(){
+  s_layer *c = perlin.init_layer(NB_PTS_LAYER, 1);
   if (!c)
     return NULL;
   int i,j;
-  for (i=0; i<c->taille; i++)
-    for (j=0; j<c->taille; j++)
-      c->v[i][j]=aleatoire(256);
+  for (i=0; i<c->size; i++)
+    for (j=0; j<c->size; j++)
+      c->v[i][j]=perlin.rand_range(256);
 
   return c;
 }
@@ -868,17 +781,42 @@ void myterrain()
   if (i == 0)
   {
     srand(6);
-    param.random = InitCalqueAlea();
-    GenererCalquePerlin(param.frequence, param.octaves, param.persistance, param.random);
 
-    /* Initialisation du terrain */
-    terrain = Terrain_Init(SDL_LoadBMP(IMAGE_FILE));
+    perlin.set_layer_size(NB_PTS_LAYER);
+    perlin.set_out_pic_name(IMAGE_FILE);
+
+    perlin.set_layer(perlin.init_layer(NB_PTS_LAYER, 1));
+    perlin.generate_layer();
+
+    param.random = perlin.get_layer();
+    //    terrain = Terrain_Init(SDL_LoadBMP(IMAGE_FILE));
+    terrain = Terrain_Init(SDL_LoadBMP("perlin_liss.bmp"));
+
     i++;
   }
 
   if(false)
     Graphique_Dessin3D();
   else
+  {
     Graphique_Dessin3DFull();
-
+    /* On va dessiner une texture */
+    glEnable(GL_TEXTURE_2D);
+    glColor4f(0.0,0.2,1.0f,0.8f);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+    glBindTexture(GL_TEXTURE_2D,terrain->watertxt);
+    glBegin(GL_QUADS);
+    glTexCoord2i(0,5);
+    glVertex3d(-2*MAX_POINTS,2*MAX_POINTS,param.w_cur);
+    glTexCoord2i(5,5);
+    glVertex3d(2*MAX_POINTS,2*MAX_POINTS,param.w_cur);
+    glTexCoord2i(5,0);
+    glVertex3d(2*MAX_POINTS,-2*MAX_POINTS,param.w_cur);
+    glTexCoord2i(0,0);
+    glVertex3d(-2*MAX_POINTS,-2*MAX_POINTS,param.w_cur);
+    glEnd();
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+  }
 }

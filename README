@@ -13,3 +13,8 @@ final	 : The binary is compressed with lzma
 clean	 : classical cleaner
 mrproper : Conchita cleaner !
 dist	 : Tarball creation
+
+
+thx to :
+ * Jean Christophe Beyler
+     for the Terrain generation

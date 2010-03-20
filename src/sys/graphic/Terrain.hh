@@ -5,7 +5,7 @@
 # include "../includes/Algebre.hh"
 # include "Perlin.hh"
 
-#define NB_PTS_CALQUE 512
+#define NB_PTS_LAYER 512
 /* Pour la lumière */
 #define L_AUCUN 0
 #define L_SIMPLE 1
@@ -48,7 +48,7 @@ typedef struct sParam
 	int octaves;
 	float persistance;
 
-	struct calque *random;
+	s_layer *random;
 }SParam;
 //nombre maximum de points dans le terrain
 #define MAX_POINTS 64
@@ -62,7 +62,7 @@ typedef struct sTerrain
 
 void colorerPixel(SDL_Surface*, int, int, Uint32);
 unsigned char aleatoire(float);
-void enregistrer_bmp(struct calque *, const char *);
+void enregistrer_bmp(s_layer *, const char *);
 
 
 
