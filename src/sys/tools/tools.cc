@@ -22,14 +22,14 @@ void test_cpu_instructions()
 		"mov %%ecx, %1\n"			\
 		: "=r" (cpeinfo), "=r" (cpsse3));
 
-  std::cout << "MMX:  "
+  std::cout << "[!] MMX:  "
  	    << ((cpeinfo >> 23 & 0x1) == 1 ? "[OK]" : "[FAIL]")
 	    << std::endl
-	    << "SSE:  " << ((cpeinfo >> 25 & 0x1) == 1 ? "[OK]" : "[FAIL]")
+	    << "[!] SSE:  " << ((cpeinfo >> 25 & 0x1) == 1 ? "[OK]" : "[FAIL]")
 	    << std::endl
-	    << "SSE2: " << ((cpeinfo >> 26 & 0x1) == 1 ? "[OK]" : "[FAIL]")
+	    << "[!] SSE2: " << ((cpeinfo >> 26 & 0x1) == 1 ? "[OK]" : "[FAIL]")
 	    << std::endl
-	    << "SSE3: " << ((cpsse3 & 0x1) == 1 ? "[OK]" : "[FAIL]")
+	    << "[!] SSE3: " << ((cpsse3 & 0x1) == 1 ? "[OK]" : "[FAIL]")
 	    << std::endl;
 }
 

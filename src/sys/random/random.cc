@@ -11,41 +11,41 @@ float	random_float()
 
   res = (rand() % 1000) / 1000.0f;
 
-  return (res);
+  return res;
 }
 
 static int mirand  = 1;
 
-void sys_srand( int semilla )
+void sys_srand(int semilla)
 {
-    mirand = semilla;
+  mirand = semilla;
 }
 
-int sys_rand( void )
+int sys_rand()
 {
-    mirand = mirand * 0x343FD + 0x269EC3;
-    return( (mirand>>16)&32767 );
+  mirand = mirand * 0x343FD + 0x269EC3;
+  return (mirand>>16) & 32767;
 }
 
 
-float sys_frand( void )
+float sys_frand()
 {
-    //mirand = mirand * 0x343FD + 0x269EC3;
-    mirand *= 16807;
+  //mirand = mirand * 0x343FD + 0x269EC3;
+  mirand *= 16807;
 
-    const unsigned int a = (mirand>>9) | 0x3f800000;
-    const float res = (*((float*)&a)) - 1.0f;
+  const unsigned int a = (mirand>>9) | 0x3f800000;
+  const float res = (*((float*)&a)) - 1.0f;
 
-    return( res );
+  return res;
 }
 
-float sys_sfrand( void )
+float sys_sfrand()
 {
-    //mirand = mirand * 0x343FD + 0x269EC3;
-    mirand *= 16807;
+  //mirand = mirand * 0x343FD + 0x269EC3;
+  mirand *= 16807;
 
-    const unsigned int a = (mirand>>9) | 0x40000000;
-    const float res = (*((float*)&a)) - 3.0f;
+  const unsigned int a = (mirand>>9) | 0x40000000;
+  const float res = (*((float*)&a)) - 3.0f;
 
-    return( res );
+  return res;
 }
