@@ -110,6 +110,7 @@ GraphEnv::init_GL()
   glEnable(GL_TEXTURE_2D);
 
   glPointSize(2.0);
+  logger("Render Initialized");
 }
 
 void
@@ -339,14 +340,15 @@ GraphEnv::print_indent()
 void
 GraphEnv::indent_log(int indent)
 {
-  log_indent_ += indent;
+  log_indent_ = indent;
 }
 
 void
-GraphEnv::logger(std::string str)
+GraphEnv::logger(std::string str, unsigned int indent)
 {
   if (is_logging_)
   {
+    indent_log(indent);
     print_indent();
     std::cerr << "[+] " << str << std::endl;
   }

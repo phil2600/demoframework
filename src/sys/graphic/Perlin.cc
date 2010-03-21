@@ -1,16 +1,16 @@
 #include "Perlin.hh"
+#include "../includes/random.hh"
 
-// FIXME
-// Use improved Random
 unsigned char
-Perlin::rand_range(float a)
+Perlin::rand_range(int a)
 {
-  return (float)rand() / RAND_MAX * a;
+  return sys_rand() % a;
 }
 
 Perlin::Perlin(GraphEnv* graphical_env)
 {
   graphical_env_ = graphical_env;
+  graphical_env_->logger("Perlin Init");
 
   octaves_ = 3;
   frequence_ = 4;
@@ -29,7 +29,6 @@ Perlin::Perlin(GraphEnv* graphical_env)
   output_picture_ = "perlin_final.bmp";
   output_picture_random_ = "perlin_rand.bmp";
   output_picture_liss_ = "perlin_liss.bmp";
-
 }
 
 void
@@ -170,7 +169,6 @@ Perlin::generate_layer()
     }
 
 
-
   /* Lissage */
   s_layer *lissage = init_layer(size, 0);
   if(!lissage)
@@ -220,10 +218,10 @@ Perlin::interpolate(int y1, int y2, int n, int delta)
   // Linear interpolations
   //////////////////////////////////////////////
   // TO TRY !
-  /*if (n!=0)
-    return y1+delta*((float)y2-(float)y1)/(float)n;
-    else
-    return y1;*/
+//   if (n!=0)
+//     return y1+delta*((float)y2-(float)y1)/(float)n;
+//     else
+//     return y1;
 }
 
 int
@@ -261,8 +259,7 @@ Perlin::interpolate_value(int i, int j, int frequence, s_layer *r)
 void
 Perlin::set_layer_size(int size)
 {
-  if (layer_)
-    layer_->size = size;
+  output_size_ = size;
 }
 
 // FIXME

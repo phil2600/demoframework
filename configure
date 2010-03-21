@@ -40,7 +40,7 @@ src/sys/graphic/Terrain.cc
   RM	= rm -f
 
 
-  CFLAGS        = `sdl-config --cflags` -O3
+  CFLAGS        = `sdl-config --cflags` -O1
   CFLAGS       += -fomit-frame-pointer -fno-rtti -fno-stack-limit
   CFLAGS       += -fno-math-errno -ffast-math
   CFLAGS       += -fexpensive-optimizations -msse3 -march=nocona -fno-unwind-tables -fno-exceptions
@@ -55,7 +55,7 @@ src/sys/graphic/Terrain.cc
 
   EXEC         = cube
   TARBALL_NAME = demophile.tar.gz
-  DATE         = `date +%d_%m_%y_%H%M`
+  DATE         = `date +%y_%m_%d_%H%M`
 
   TO_COMPRESS  = AUTHORS configure Makefile README stub TODO
 

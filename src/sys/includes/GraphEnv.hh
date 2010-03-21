@@ -66,7 +66,7 @@ public:
 
   void indent_log(int indent);
   void print_indent();
-  void logger(std::string str);
+  void logger(std::string str, unsigned int indent = 0);
 
 private:
   int  bpp_;

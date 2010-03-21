@@ -7,6 +7,7 @@
 #include "sys/includes/EventFactory.hh"
 #include "sys/includes/ShapeFactory.hh"
 #include "sys/graphic/Perlin.hh"
+#include "sys/graphic/Terrain.hh"
 
 // Debugging STUFF
 float rot1  = 0.0f;
@@ -36,13 +37,14 @@ GLuint texture2;
 GLuint texture3;
 GLuint texture4;
 
+Terrain terrain(&graphical_env);
+
 int	main(int argc,char** argv)
 {
   EventFactory event_factory;
   ShapeFactory shape_factory;
   Camera * camera;
   graphical_env.init_GL();
-  graphical_env.logger("Render Initialized");
   graphical_env.setActiveCamera(new Camera(CPoint(0, 0, 20)));
 
   event_cube = event_factory.createInstance("cube");
@@ -54,12 +56,11 @@ int	main(int argc,char** argv)
   texture1 = loadTexture("data/stainedglass05.jpg");
   texture4 = loadTexture("data/metal091.jpg");
 
-  Perlin perlin(&graphical_env);
+  //Perlin perlin(&graphical_env);
 
   // perlin.process_perlin();
 //   return 0;
-  myterrain();
-  //  exit(1);
+  terrain.makeTerrain();
 
   display_process();
 
@@ -90,10 +91,10 @@ void	draw_shapes(void)
   graphical_env.drawAxis3D();
 
   /* TEXTURED CUBE */
-  draw_textured_cube(texture1);
+  //  draw_textured_cube(texture1);
 
   /* GROUND */
-  draw_textured_ground(texture4, 100);
+  //  draw_textured_ground(texture4, 100);
 
   /* The EventCube */
   glPushMatrix();
@@ -134,12 +135,12 @@ void	draw_shapes(void)
   glPopMatrix();
 
   /* Draw Grid */
-   shape_grid->display();
+  //   shape_grid->display();
 
   /* Draw Ball */
-   shape_ball->position(0, 0, 2.1);
-   shape_ball->update_pos();
-   shape_ball->display();
+//    shape_ball->position(0, 0, 2.1);
+//    shape_ball->update_pos();
+//    shape_ball->display();
 }
 
 void	display()
@@ -149,7 +150,7 @@ void	display()
   glLoadIdentity();
 
   graphical_env.getActiveCamera()->look();
-  myterrain();
+  terrain.display_terrain();
   draw_shapes();
 
   glFlush();
@@ -175,6 +176,26 @@ void	event_management(SDL_Event *event, char *quit)
 	  case SDLK_p:
 	    takeScreenshot("test.bmp");
 	    break;
+
+	  case SDLK_w:
+	    terrain.set_is_wired(!terrain.get_is_wired());
+	    break;
+	  case SDLK_x:
+	    terrain.set_is_watered(!terrain.get_is_watered());
+	    break;
+	  case SDLK_c:
+	    terrain.set_water_level(terrain.get_water_level()+1);
+	    break;
+	  case SDLK_v:
+	    terrain.set_water_level(terrain.get_water_level()-1);
+	    break;
+	  case SDLK_b:
+	    terrain.set_max_height(terrain.get_max_height()+1);
+	    break;
+	  case SDLK_n:
+	    terrain.set_max_height(terrain.get_max_height()-1);
+	    break;
+
  	  case SDLK_ESCAPE:
  	    *quit = 1;
  	    break;

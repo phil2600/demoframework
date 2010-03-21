@@ -33,7 +33,7 @@ mrproper: clean
 	$(RM) $(FINAL)
 
 dist: mrproper
-	$(COMP) $(TARBALL_NAME) $(SRC) src/sys/**/*.hh $(TO_COMPRESS)
+	$(COMP) $(DATE)-D$(TARBALL_NAME) data $(SRC) src/sys/**/*.hh $(TO_COMPRESS)
 
 FINAL = final
 final: $(EXEC)

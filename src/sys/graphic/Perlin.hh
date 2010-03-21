@@ -50,7 +50,7 @@ public:
   s_layer *get_layer();
   void     set_layer(s_layer *layer);
 
-  unsigned char rand_range(float a);
+  unsigned char rand_range(int a);
   void ColoratePixels(SDL_Surface* s, int x, int y, Uint32 coul);
 
 private:
