@@ -14,6 +14,9 @@ $(EXEC): $(OBJ)
 	@ls -F -b -h -l $(EXEC) | sed -e 's/.* \(.*K\).*/\1/'
 	@zsh -c 'cat **/*.{hh,cc,asm}' | wc
 
+tiny.$(EXEC): $(OBJ)
+	PYTHONPATH=$(PYTHONPATH) $(BOLD) -o $@ $(LDLIBS) $(LDFLAGS) $^
+
 %.o : %.cc
 	$(CC) -o $@ -c $< $(CFLAGS) $(PERSO_FLAGS)
 

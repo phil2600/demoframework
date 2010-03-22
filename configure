@@ -15,6 +15,10 @@ add_to_makefile() {
   echo "$@" >> Makefile.rules
 }
 
+get_python_version() {
+  python --version 2>&1 | sed -e 's/^Python \(2.[[:digit:]]\).[[:digit:]]$/\1/'
+}
+
 cat << EOF > Makefile.rules
 
   SRC = src/init.cc \
@@ -61,6 +65,15 @@ src/sys/shapes/ShapeBall.cc
   TO_COMPRESS  = AUTHORS configure Makefile README stub TODO
 
 EOF
+
+add_to_makefile "PYTHON_VERSION=$(get_python_version)"
+make build -C tools/bold
+bold_path="$(pwd)/tools/bold/bold-0.2.1/build/scripts-$(get_python_version)/bold"
+if test -x $bold_path; then
+        add_to_makefile "BOLD=$bold_path"
+        add_to_makefile "PYTHONPATH=$(pwd)/tools/bold/bold-0.2.1/build/lib"
+fi
+
 
 echo "  $@" >> Makefile.rules
 
