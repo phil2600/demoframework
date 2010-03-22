@@ -11,6 +11,10 @@
 
 # -I/home/phil/Desktop/web/appz/boost_1_42_0/
 
+add_to_makefile() {
+  echo "$@" >> Makefile.rules
+}
+
 cat << EOF > Makefile.rules
 
   SRC = src/init.cc \
