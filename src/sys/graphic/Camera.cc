@@ -7,7 +7,7 @@ Camera::Camera(const CPoint & position)
   _theta = 0;
   VectorsFromAngles();
 
-  _speed = 0.05;
+  _speed = 0.02;
   _sensivity = 0.2;
   _verticalMotionActive = false;
 

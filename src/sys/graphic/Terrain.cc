@@ -12,7 +12,7 @@ Terrain::Terrain(GraphEnv* graphical_env)
   lighting_mode_ = L_RAYPATCH;
   is_watered_ = 1;
   is_wired_ = 1;
-  is_displayed_ = 1;
+  is_textured_ = 1;
   water_level_ = 5;
   max_height_ = 15.0;
 
@@ -684,7 +684,8 @@ Terrain::display_terrain()
 
   if (is_wired_)
     draw3D();
-  if (is_displayed_)
+
+  if (is_textured_)
     drawFull3D();
 
   if (is_watered_)

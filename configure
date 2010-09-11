@@ -53,7 +53,7 @@ src/sys/graphic/Terrain.cc
 #-DFAST_MATHS
 
 
-  EXEC         = cube
+  EXEC         = demo
   TARBALL_NAME = demophile.tar.gz
   DATE         = `date +%y_%m_%d_%H%M`
 

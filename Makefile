@@ -26,6 +26,7 @@ clean:
 	find . -iname "*.out"   -delete
 	find . -iname "*.core"  -delete
 	find . -iname "*.rules" -delete
+	rm -f *.bmp
 
 mrproper: clean
 	$(MAKE) -C doc clean
@@ -35,17 +36,20 @@ mrproper: clean
 dist: mrproper
 	$(COMP) $(DATE)-D$(TARBALL_NAME) data $(SRC) src/sys/**/*.hh $(TO_COMPRESS)
 
-FINAL = final
+FINAL = stubbed_demo
+$(FINAL): final
 final: $(EXEC)
+	@cp $(EXEC) $(EXEC)2
 #	sstrip $(BIN)
 	@lzma -9 $<
 	@cat stub $<.lzma > $(FINAL)
 	@rm $<.lzma
+	@cp $(EXEC)2 $(EXEC) && rm $(EXEC)2
 	@chmod a+rx $(FINAL)
 	@echo -n "[!] After stub: "
 	@ls -F -b -h -l $(FINAL) | sed -e 's/.* \(.*K\).*/\1/'
 
-run: final
+run: $(FINAL)
 	bash $(FINAL)
 
 infos:

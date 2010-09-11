@@ -4,8 +4,15 @@
 *.a
 *.so
 demophile*
-cube
-final
+demo
+stubbed_demo
 *.rules
 doc/html
 test.bmp
+*.bmp
+doc
+Doxyfile
+tmp
+data
+tests
+tools

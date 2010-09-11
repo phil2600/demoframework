@@ -49,6 +49,8 @@ public:
   void   set_water_level(double water_level) { water_level_ = water_level; }
 
   void   re_process() { re_process_ = 1; }
+  void   set_is_textured(int is_textured) { is_textured_ = is_textured; }
+  int    get_is_textured() { return is_textured_; }
 
 private:
 
@@ -59,7 +61,7 @@ private:
   double max_height_;
   double water_level_;
   int is_wired_;
-  int is_displayed_;
+  int is_textured_;
   int is_watered_;
   int lighting_mode_;
 

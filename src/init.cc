@@ -11,6 +11,7 @@
 
 // Debugging STUFF
 float rot1  = 0.0f;
+int disp_grid = 1;
 
 /* FIXME  -  A Nettoyer */
 
@@ -135,10 +136,11 @@ void	draw_shapes(void)
   glPopMatrix();
 
   /* Draw Grid */
-  //   shape_grid->display();
+  if (disp_grid)
+    shape_grid->display();
 
   /* Draw Ball */
-//    shape_ball->position(0, 0, 2.1);
+//    shape_ball->position(0, 0, 5.1);
 //    shape_ball->update_pos();
 //    shape_ball->display();
 }
@@ -195,6 +197,16 @@ void	event_management(SDL_Event *event, char *quit)
 	  case SDLK_n:
 	    terrain.set_max_height(terrain.get_max_height()-1);
 	    break;
+	  case SDLK_m:
+	    terrain.re_process();
+	    break;
+	  case SDLK_k:
+	    terrain.set_is_textured(!terrain.get_is_textured());
+	    break;
+	  case SDLK_j:
+	    disp_grid = !disp_grid;
+	    break;
+
 
  	  case SDLK_ESCAPE:
  	    *quit = 1;
